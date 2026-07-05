@@ -1,0 +1,207 @@
+/* ── AssemblerDashboard.css ─────────────────────────────────────── */
+
+:root {
+  --asm-primary:   #6A1FAB;
+  --asm-light:     #C49AEB;
+  --asm-navy:      #1A2340;
+  --asm-navy-mid:  #1E2B47;
+  --asm-cream:     #F5F0E8;
+  --asm-white:     #FFFFFF;
+  --asm-green:     #2E7D52;
+  --asm-red:       #C0392B;
+  --asm-border:    #EDE8DE;
+  --asm-muted:     #7A869A;
+}
+
+.asm-page {
+  padding: 32px 36px;
+  min-height: 100vh;
+  background: var(--asm-cream);
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+/* ── Welcome Banner ── */
+.asm-banner {
+  background: linear-gradient(135deg, var(--asm-navy) 0%, var(--asm-navy-mid) 100%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--asm-navy-mid);
+}
+
+.asm-banner h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--asm-white);
+}
+
+.asm-banner p {
+  margin: 6px 0 0;
+  color: #8899BB;
+  font-size: 14px;
+}
+
+.asm-banner-date {
+  text-align: right;
+}
+
+.asm-banner-date .date-label {
+  margin: 0;
+  font-size: 12px;
+  color: #8899BB;
+}
+
+.asm-banner-date .date-value {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--asm-light);
+}
+
+/* ── Stats Grid ── */
+.asm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.asm-stat-card {
+  background: var(--asm-white);
+  border-radius: 16px;
+  border: 1px solid var(--asm-border);
+  padding: 22px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 2px 12px rgba(26, 35, 64, 0.06);
+}
+
+.asm-stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #F0E6FB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--asm-primary);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.asm-stat-body {
+  flex: 1;
+}
+
+.asm-stat-title {
+  margin: 0;
+  font-size: 12px;
+  color: var(--asm-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.asm-stat-value {
+  margin: 4px 0 6px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--asm-navy);
+}
+
+/* ── Table Card ── */
+.asm-card {
+  background: var(--asm-white);
+  border-radius: 16px;
+  border: 1px solid var(--asm-border);
+  padding: 22px 24px;
+  box-shadow: 0 2px 12px rgba(26, 35, 64, 0.06);
+}
+
+.asm-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.asm-section-title h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--asm-navy);
+}
+
+/* ── Table ── */
+.asm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.asm-table th {
+  text-align: left;
+  padding: 0 0 10px;
+  font-size: 11px;
+  color: var(--asm-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--asm-border);
+}
+
+.asm-table td {
+  padding: 16px 8px;
+  border-bottom: 1px solid #F0F2F5;
+  vertical-align: middle;
+}
+
+.asm-table tr:last-child td {
+  border-bottom: none;
+}
+
+.asm-order-id {
+  color: var(--asm-primary);
+  font-weight: 700;
+}
+
+.asm-status-select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--asm-border);
+  background: var(--asm-cream);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--asm-navy);
+  cursor: pointer;
+  outline: none;
+}
+
+.asm-status-select:focus {
+  border-color: var(--asm-primary);
+}
+
+.asm-btn {
+  background: var(--asm-primary);
+  color: var(--asm-white);
+  border: none;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.asm-btn:hover {
+  opacity: 0.9;
+}
+
+.asm-btn:disabled {
+  background: #CCC;
+  cursor: not-allowed;
+}

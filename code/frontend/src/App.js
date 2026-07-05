@@ -53,6 +53,9 @@ import CartPage from './pages/landingpage/CartPage.jsx';
 // Box Builder
 import BoxBuilderPage from './pages/box_build/BoxBuilderPage.jsx';
 
+// Assembler
+import AssemblerDashboard from './pages/assembler/Dashboard';
+
 // Scroll to top helper on route navigation
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -149,6 +152,14 @@ function App() {
             </AdminLayout>
           } />
 
+          {/* Assembler routes */}
+          <Route path="/assembler/*" element={
+            <Routes>
+              <Route path="/" element={<AssemblerDashboard />} />
+              {/* Add more assembler routes here as needed */}
+            </Routes>
+          } />
+          
           {/* Catch-all route that redirects to home page */}
           <Route path="*" element={<Navigate to="/" />} />
 

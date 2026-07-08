@@ -1,25 +1,41 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    Profile.css  —  Giftora Customer Profile
-   Theme: dark navy (#1A1A2E / #16213E) + gold (#C9A961) + accent blue (#5DADE2)
+   Theme: light surface (#FAFAF8 / #FFFFFF) + navy ink (#1A1A2E) + gold (#C9A961)
+   Matches the Giftora landing page palette (see :root below).
    Renders inside CustomerLayout — header is fixed at 64px, so padding-top: 64px
 ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --navy-deep:   #1A1A2E;
-  --navy-mid:    #16213E;
-  --navy-light:  #1e2a45;
+  /* Gold accents */
   --gold:        #C9A961;
   --gold-bright: #D4AF37;
+  --gold-pale:   #E8C97A;
+
+  /* Navy / ink — used for headings and text on gold */
+  --navy-deep:   #1A1A2E;
+  --navy-mid:    #16213E;
+  --ink:         #0F0F1A;
+
+  /* Light surfaces */
+  --surface:     #FAFAF8;
+  --white:       #FFFFFF;
+  --gray-1:      #F9F8F6;
+  --gray-2:      #F0EDE8;
+  --gray-3:      #9CA3AF;
+  --muted:       #6B7280;
+
   --blue:        #5DADE2;
-  --blue-dim:    rgba(93, 173, 226, 0.15);
-  --gold-dim:    rgba(201, 169, 97, 0.15);
-  --text-primary:   #FFFFFF;
-  --text-secondary: rgba(255, 255, 255, 0.65);
-  --text-muted:     rgba(255, 255, 255, 0.35);
-  --border:      rgba(201, 169, 97, 0.18);
-  --border-blue: rgba(93, 173, 226, 0.2);
-  --card-bg:     rgba(255, 255, 255, 0.04);
-  --card-hover:  rgba(255, 255, 255, 0.07);
+  --blue-dim:    rgba(93, 173, 226, 0.12);
+  --gold-dim:    rgba(201, 169, 97, 0.12);
+
+  --text-primary:   var(--ink);
+  --text-secondary: var(--muted);
+  --text-muted:     var(--gray-3);
+  --border:      rgba(201, 169, 97, 0.28);
+  --border-blue: rgba(93, 173, 226, 0.25);
+  --card-bg:     var(--white);
+  --card-hover:  var(--gray-1);
+  --card-shadow: 0 1px 3px rgba(15,15,26,0.04), 0 8px 24px rgba(15,15,26,0.04);
   --radius-sm:   8px;
   --radius-md:   12px;
   --radius-lg:   18px;
@@ -33,7 +49,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--navy-deep);
+  background: var(--surface);
   color: var(--text-secondary);
   font-size: 15px;
   gap: 16px;
@@ -57,7 +73,7 @@
 /* padding-top: 64px offsets the fixed topbar-container header */
 .pf-page {
   min-height: 100vh;
-  background: linear-gradient(160deg, #1A1A2E 0%, #0f1729 60%, #16213E 100%);
+  background: linear-gradient(160deg, #FAFAF8 0%, #FFFFFF 55%, #F0EDE8 100%);
   padding-top: 64px;   /* ← matches topbar-container height */
   padding-bottom: 60px;
 }
@@ -165,6 +181,7 @@
   border-radius: var(--radius-md);
   padding: 20px 16px;
   text-align: center;
+  box-shadow: var(--card-shadow);
   transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 
@@ -226,7 +243,7 @@
 
 .pf-tab:hover {
   color: var(--text-primary);
-  background: rgba(255,255,255,0.04);
+  background: rgba(15,15,26,0.03);
 }
 
 .pf-tab.active {
@@ -252,6 +269,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 32px;
+  box-shadow: var(--card-shadow);
   animation: fadeSlideIn 0.25s ease both;
 }
 
@@ -310,8 +328,8 @@
 .pf-input {
   width: 100%;
   padding: 12px 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 14px;
@@ -325,14 +343,14 @@
 }
 
 .pf-input:hover {
-  border-color: rgba(201,169,97,0.35);
-  background: rgba(255,255,255,0.07);
+  border-color: rgba(201,169,97,0.45);
+  background: var(--gray-2);
 }
 
 .pf-input:focus {
   border-color: var(--gold);
-  background: rgba(255,255,255,0.07);
-  box-shadow: 0 0 0 3px rgba(201,169,97,0.12);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(201,169,97,0.15);
 }
 
 .pf-select {
@@ -347,7 +365,7 @@
 }
 
 .pf-select option {
-  background: #1a1a1a;
+  background: var(--white);
   color: var(--text-primary);
 }
 
@@ -446,7 +464,7 @@
 .pf-btn-outline:hover {
   background: var(--card-hover);
   color: var(--text-primary);
-  border-color: rgba(255,255,255,0.2);
+  border-color: var(--gray-3);
 }
 
 /* ── Address Cards ───────────────────────────────────────────────────────── */
@@ -462,6 +480,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 20px 22px;
+  box-shadow: var(--card-shadow);
   transition: border-color var(--transition), background var(--transition);
   animation: fadeSlideIn 0.2s ease both;
 }

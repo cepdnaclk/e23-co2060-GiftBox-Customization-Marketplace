@@ -335,6 +335,22 @@
   box-shadow: 0 0 0 3px rgba(201,169,97,0.12);
 }
 
+.pf-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0L5 6L10 0Z' fill='%23C9A961'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.pf-select option {
+  background: #1a1a1a;
+  color: var(--text-primary);
+}
+
 /* ── Error ───────────────────────────────────────────────────────────────── */
 .pf-error {
   font-size: 13px;
@@ -344,6 +360,44 @@
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   margin-bottom: 16px;
+}
+
+/* ── Address status banner ──────────────────────────────────────────────── */
+.pf-address-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+}
+
+.pf-address-status-icon {
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.pf-address-status-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 2px;
+  color: var(--text-primary);
+}
+
+.pf-address-status-detail {
+  font-size: 13px;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.pf-address-status-saved {
+  background: rgba(201,169,97,0.08);
+  border: 1px solid rgba(201,169,97,0.25);
+}
+
+.pf-address-status-empty {
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.2);
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */

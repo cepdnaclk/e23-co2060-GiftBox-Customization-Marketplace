@@ -5,6 +5,32 @@
 import React, { useState, useEffect } from 'react';
 import './Profile.css';
 
+// ─── SRI LANKA REFERENCE DATA ──────────────────────────────────────────────
+// 25 districts, grouped by their 9 provinces
+const SL_PROVINCES = [
+  'Western Province',
+  'Central Province',
+  'Southern Province',
+  'Northern Province',
+  'Eastern Province',
+  'North Western Province',
+  'North Central Province',
+  'Uva Province',
+  'Sabaragamuwa Province',
+];
+
+const SL_DISTRICTS = [
+  'Colombo', 'Gampaha', 'Kalutara',                 // Western
+  'Kandy', 'Matale', 'Nuwara Eliya',                // Central
+  'Galle', 'Matara', 'Hambantota',                  // Southern
+  'Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya', 'Mullaitivu', // Northern
+  'Trincomalee', 'Batticaloa', 'Ampara',            // Eastern
+  'Kurunegala', 'Puttalam',                         // North Western
+  'Anuradhapura', 'Polonnaruwa',                    // North Central
+  'Badulla', 'Monaragala',                          // Uva
+  'Ratnapura', 'Kegalle',                           // Sabaragamuwa
+];
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function Profile() {
 
@@ -30,6 +56,8 @@ export default function Profile() {
   const [addrForm,     setAddrForm]     = useState({ line1:'', line2:'', city:'', district:'', province:'', postalCode:'' });
   const [addrSaved,    setAddrSaved]    = useState(false);
   const [addrError,    setAddrError]    = useState('');
+  // Snapshot of what's actually saved in the DB (separate from the live, editable form)
+  const [hasSavedAddress, setHasSavedAddress] = useState(false);
 
   const userId = localStorage.getItem('userId');
   const username = localStorage.getItem('username');
@@ -43,7 +71,7 @@ export default function Profile() {
       }
       try {
         // Fetch profile
-        const res = await fetch(`http://localhost:8080/api/users/${userId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${userId}`);
         if (res.ok) {
           const data = await res.json();
           setProfile(data);
@@ -62,6 +90,12 @@ export default function Profile() {
             postalCode: data.postalCode || '',
           });
           setAddress(data);
+
+          // An address counts as "saved" if the required fields (line1, city, province)
+          // actually have values in the database — not just because the form has defaults.
+          setHasSavedAddress(
+            Boolean(data.addressLine1 && data.city && data.province)
+          );
         }
 
         // Fetch stats (mocked for now until backend orders endpoint is ready)
@@ -83,7 +117,7 @@ export default function Profile() {
     }
     setInfoError('');
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -120,7 +154,7 @@ export default function Profile() {
     }
     setPassError('');
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${userId}/password`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${userId}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword: passForm.current, newPassword: passForm.newPass }),
@@ -145,7 +179,7 @@ export default function Profile() {
     }
     setAddrError('');
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${username}/address`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${username}/address`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -161,7 +195,7 @@ export default function Profile() {
       
       if (res.ok) {
         // Also update the main customer record just in case
-        await fetch(`http://localhost:8080/api/users/${userId}`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/users/${userId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -174,6 +208,7 @@ export default function Profile() {
             }),
         });
         setAddrSaved(true);
+        setHasSavedAddress(true);
         setTimeout(() => setAddrSaved(false), 2000);
       } else {
           setAddrError('Failed to save address.');
@@ -381,6 +416,29 @@ export default function Profile() {
                   <p className="pf-card-desc">Update your default delivery address.</p>
                 </div>
 
+                {/* ── Address status banner ── */}
+                {hasSavedAddress ? (
+                  <div className="pf-address-status pf-address-status-saved">
+                    <span className="pf-address-status-icon">📍</span>
+                    <div>
+                      <p className="pf-address-status-title">Saved delivery address</p>
+                      <p className="pf-address-status-detail">
+                        {addrForm.line1}{addrForm.line2 ? `, ${addrForm.line2}` : ''}, {addrForm.city}
+                        {addrForm.district ? `, ${addrForm.district}` : ''}, {addrForm.province}
+                        {addrForm.postalCode ? ` ${addrForm.postalCode}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="pf-address-status pf-address-status-empty">
+                    <span className="pf-address-status-icon">⚠️</span>
+                    <div>
+                      <p className="pf-address-status-title">No delivery address saved yet</p>
+                      <p className="pf-address-status-detail">Add one below so we know where to deliver your gift boxes.</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="pf-form-row">
                   <div className="pf-form-group">
                     <label className="pf-label">Street / Line 1</label>
@@ -417,26 +475,32 @@ export default function Profile() {
                   </div>
                   <div className="pf-form-group">
                     <label className="pf-label">Province</label>
-                    <input
-                      className="pf-input"
-                      type="text"
+                    <select
+                      className="pf-input pf-select"
                       value={addrForm.province}
                       onChange={(e) => setAddrForm({ ...addrForm, province: e.target.value })}
-                      placeholder="Western Province"
-                    />
+                    >
+                      <option value="">Select province</option>
+                      {SL_PROVINCES.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
                 <div className="pf-form-row">
                   <div className="pf-form-group">
                     <label className="pf-label">District</label>
-                    <input
-                      className="pf-input"
-                      type="text"
+                    <select
+                      className="pf-input pf-select"
                       value={addrForm.district}
                       onChange={(e) => setAddrForm({ ...addrForm, district: e.target.value })}
-                      placeholder="Colombo"
-                    />
+                    >
+                      <option value="">Select district</option>
+                      {SL_DISTRICTS.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="pf-form-group">
                     <label className="pf-label">Postal Code</label>

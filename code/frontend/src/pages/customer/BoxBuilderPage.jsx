@@ -31,14 +31,17 @@ const BoxBuilderPage = () => {
   const heroRef = useRef(null);
   
   const { cartItems } = useCart(); 
-  const availableItems = cartItems || [];
+  
+  // New states for loading real catalog items directly
+  const [catalogProducts, setCatalogProducts] = useState([]);
+  const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
 
   // Wizard Navigation
   const [activeStep, setActiveStep] = useState(1);
 
   // Form States
-  const [occasion, setOccasion] = useState(OCCASIONS[0].id); // Defaulting for visual workflow smoothness
-  const [boxSize, setBoxSize] = useState(BOX_SIZES[1]); // Defaulting to Medium
+  const [occasion, setOccasion] = useState(OCCASIONS[0].id);
+  const [boxSize, setBoxSize] = useState(BOX_SIZES[1]); 
   const [selectedItems, setSelectedItems] = useState({}); 
   const [wrappingStyle, setWrappingStyle] = useState(WRAPPING_STYLES[0].id);
   
@@ -50,6 +53,30 @@ const BoxBuilderPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [validationError, setValidationError] = useState('');
+
+  // 🛠️ FIX: Fetch the actual item catalog automatically so users don't have to leave the page
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      setIsLoadingCatalog(true);
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/products`);
+        if (res.ok) {
+          const data = await res.json();
+          setCatalogProducts(data);
+        } else {
+          throw new Error('Catalog service offline');
+        }
+      } catch (err) {
+        console.warn("Direct catalog fetch failed, falling back to cart memory context.", err);
+      } finally {
+        setIsLoadingCatalog(false);
+      }
+    };
+    fetchCatalog();
+  }, []);
+
+  // Use fetched products if available; otherwise, gracefully fall back to cartItems context
+  const availableItems = catalogProducts.length > 0 ? catalogProducts : (cartItems || []);
 
   // Hero Intro Transition Effect
   useEffect(() => {
@@ -120,14 +147,25 @@ const BoxBuilderPage = () => {
     return WRAPPING_STYLES.find(w => w.id === wrappingStyle) || WRAPPING_STYLES[0];
   }, [wrappingStyle]);
 
-  const canPlaceOrder = () => {
-    return occasion && totalItemsCount > 0 && boxSize && 
-           recipientName.trim() && giftMessage.trim() && 
-           wrappingStyle && deliveryAddress.trim();
-  };
-
   const handlePlaceOrder = async () => {
-    if (!canPlaceOrder()) return;
+    setValidationError('');
+
+    if (totalItemsCount === 0) {
+      setValidationError('Your gift box is empty. Please pack items before confirming.');
+      return;
+    }
+    if (!recipientName.trim()) {
+      setValidationError('Please provide the Recipient Full Name.');
+      return;
+    }
+    if (!giftMessage.trim()) {
+      setValidationError('Please write a quick message for the Gift Note Block.');
+      return;
+    }
+    if (!deliveryAddress.trim()) {
+      setValidationError('Please enter a valid Consignee Shipping Destination Address.');
+      return;
+    }
     
     setSubmitting(true);
     const orderPayload = {
@@ -142,7 +180,7 @@ const BoxBuilderPage = () => {
     };
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/custom-box`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/orders/custom-box`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload)
@@ -300,13 +338,17 @@ const BoxBuilderPage = () => {
                 </div>
               </div>
 
-              {availableItems.length === 0 ? (
+              {isLoadingCatalog ? (
+                <div className="bb-catalog-fallback">
+                  <h4>Loading dynamic premium collections...</h4>
+                </div>
+              ) : availableItems.length === 0 ? (
                 <div className="bb-catalog-fallback">
                   <div className="fallback-art">🛒</div>
-                  <h4>No active cart entities mapped</h4>
-                  <p>Explore the boutique platform repository to cache selectable items inside your working directory.</p>
-                  <button className="bb-btn-primary" onClick={() => navigate('/products')}>
-                    Browse Premium Catalog
+                  <h4>No active premium catalog items found</h4>
+                  <p>We couldn't connect to the storefront inventory repository right now.</p>
+                  <button className="bb-btn-primary" onClick={() => navigate('/')}>
+                    Go to Storefront Homepage
                   </button>
                 </div>
               ) : (
@@ -351,8 +393,8 @@ const BoxBuilderPage = () => {
                   </div>
 
                   <div className="bb-catalog-routing-footer">
-                    <button className="bb-btn-secondary" onClick={() => navigate('/products')}>
-                      + Add other items from storefront
+                    <button className="bb-btn-secondary" onClick={() => navigate('/')}>
+                      + Back to main storefront
                     </button>
                   </div>
                 </>
@@ -407,9 +449,9 @@ const BoxBuilderPage = () => {
               </div>
 
               <button 
-                className={`bb-submission-finalizer ${addedToCart ? 'success' : ''}`} 
+                className={`bb-submission-finalizer ${submitSuccess ? 'success' : ''}`} 
                 onClick={handlePlaceOrder}
-                disabled={submitting || !canPlaceOrder()}
+                disabled={submitting}
               >
                 {submitting ? 'Processing Dispatch...' : `Submit Order Setup • LKR ${total.toLocaleString()}`}
               </button>
@@ -476,10 +518,6 @@ const BoxBuilderPage = () => {
               <span>Grand Total</span>
               <span>LKR {total.toLocaleString()}</span>
             </div>
-            
-            {!canPlaceOrder() && activeStep === 4 && (
-              <p className="ledger-footer-tip">⚠️ Make sure all fields, delivery coordinates, and greetings are filled out before checking out.</p>
-            )}
           </div>
         </aside>
 

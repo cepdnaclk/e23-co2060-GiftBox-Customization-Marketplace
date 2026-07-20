@@ -1,0 +1,64 @@
+/* File path: code/frontend/src/components/assembler/AssemblerSidebar.css */
+
+.assembler-sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #1e293b;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #334155;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    flex: 1;
+}
+
+.nav-link {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-link:hover {
+    background-color: #334155;
+}
+
+.nav-link.active {
+    color: #38bdf8;
+    background-color: #0f172a;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid #334155;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f87171;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    padding: 10px 0;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.logout-btn:hover {
+    color: #ef4444;
+}

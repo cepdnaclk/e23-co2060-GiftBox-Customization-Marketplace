@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, User, LogOut } from 'lucide-react';
 import './TopBar.css';
-import logo from '../../assets/logo-removebg-preview.png';
+import logo from '../../assets/logo.png';
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -18,7 +18,9 @@ const TopBar = () => {
         return;
       }
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/customers/${userId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${userId}`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+        });
         if (res.ok) {
           const data = await res.json();
           setDisplayName(data.name || (username.includes('@') ? username.split('@')[0] : username));
@@ -34,7 +36,7 @@ const TopBar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   return (

@@ -10,20 +10,6 @@ import './ProductsPage.css';
 import { useCart } from '../../context/CartContext';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const CATEGORY_MAP = { 
-  1: 'Drinks & Beverages', 2: 'Watches', 3: 'Perfume & Fragrance', 
-  4: 'Teddy Bears & Plushes', 5: 'Jewelry & Accessories', 6: 'Chocolates & Sweets',
-  7: "Men's Watches", 8: "Ladies' Watches", 9: "Minimalist Watches",
-  10: "Premium Truffles", 11: "Bakery & Cookies", 12: "Macarons & Cupcakes",
-  13: "Men's Fragrances", 14: "Ladies' Perfumes",
-  15: "Plush Toys", 16: "Newborn Plushes",
-  17: "Bangles & Bracelets", 18: "Necklaces & Pendants", 19: "Earrings",
-  20: "Non-Alcoholic Wines", 21: "Gourmet Coffee & Teas",
-  22: "Self-Care & Wellness", 23: "Scented Candles", 24: "Organic Soaps & Bath", 25: "Lotions & Skincare",
-  26: "Gift Boxes & Packaging", 27: "Wooden Keepsake Boxes", 28: "Magnetic Cardboard Boxes", 29: "Velvet Gift Boxes",
-  30: "Flowers & Botanicals", 31: "Fresh Flowers", 32: "Preserved & Dried Flowers", 33: "Mini Succulents"
-};
-
 const CAT_ICONS = { 
   All: '🛍️', 
   'Drinks & Beverages': '🍷', Watches: '⌚', 'Perfume & Fragrance': '🌸', 
@@ -37,22 +23,6 @@ const CAT_ICONS = {
   "Self-Care & Wellness": '🧼', "Scented Candles": '🕯️', "Organic Soaps & Bath": '🧼', "Lotions & Skincare": '🧴',
   "Gift Boxes & Packaging": '📦', "Wooden Keepsake Boxes": '📦', "Magnetic Cardboard Boxes": '📦', "Velvet Gift Boxes": '🎁',
   "Flowers & Botanicals": '💐', "Fresh Flowers": '💐', "Preserved & Dried Flowers": '🥀', "Mini Succulents": '🌵'
-};
-
-const SUBCATEGORY_TO_PARENT = {
-  1: 'Drinks & Beverages', 2: 'Watches', 3: 'Perfume & Fragrance',
-  4: 'Teddy Bears & Plushes', 5: 'Jewelry & Accessories', 6: 'Chocolates & Sweets',
-  22: 'Self-Care & Wellness', 26: 'Gift Boxes & Packaging', 30: 'Flowers & Botanicals',
-  
-  7: 'Watches', 8: 'Watches', 9: 'Watches',
-  10: 'Chocolates & Sweets', 11: 'Chocolates & Sweets', 12: 'Chocolates & Sweets',
-  13: 'Perfume & Fragrance', 14: 'Perfume & Fragrance',
-  15: 'Teddy Bears & Plushes', 16: 'Teddy Bears & Plushes',
-  17: 'Jewelry & Accessories', 18: 'Jewelry & Accessories', 19: 'Jewelry & Accessories',
-  20: 'Drinks & Beverages', 21: 'Drinks & Beverages',
-  23: 'Self-Care & Wellness', 24: 'Self-Care & Wellness', 25: 'Self-Care & Wellness',
-  27: 'Gift Boxes & Packaging', 28: 'Gift Boxes & Packaging', 29: 'Gift Boxes & Packaging',
-  31: 'Flowers & Botanicals', 32: 'Flowers & Botanicals', 33: 'Flowers & Botanicals'
 };
 
 const SORT_OPTIONS = [
@@ -80,6 +50,7 @@ const ProductsPage = () => {
   const urlCategory = searchParams.get('category') || 'All';
 
   const [allProducts, setAllProducts] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(null);
   const [activeCategory, setActiveCategory] = useState(urlCategory);
@@ -97,32 +68,42 @@ const ProductsPage = () => {
 
   useEffect(() => {
     const apiBase = process.env.REACT_APP_API_URL || 'https://nexus-backend-axbdfzd2g4c0fwbf.austriaeast-01.azurewebsites.net';
-    fetch(`${apiBase}/api/products`)
-      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
-      .then(data => { setAllProducts(data); setLoading(false); })
-      .catch(err => { 
-        console.error("Failed to fetch products:", err);
-        setError(err.message); 
-        setLoading(false); 
-      });
+    Promise.all([
+      fetch(`${apiBase}/api/products`).then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); }),
+      fetch(`${apiBase}/api/categories`).then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+    ])
+    .then(([prodData, catData]) => {
+      setDbCategories(catData);
+      setAllProducts(prodData);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error("Failed to fetch data:", err);
+      setError(err.message);
+      setLoading(false);
+    });
   }, []);
 
+  const getCategoryName = (id) => {
+    const cat = dbCategories.find(c => c.id === id);
+    return cat ? cat.name : 'Other';
+  };
+
   const categories = useMemo(() => {
-    const names = allProducts.map(p => SUBCATEGORY_TO_PARENT[p.categoryId] || 'Other');
+    const names = allProducts.map(p => getCategoryName(p.categoryId));
     return ['All', ...new Set(names)];
-  }, [allProducts]);
+  }, [allProducts, dbCategories]);
 
   const displayProducts = useMemo(() => {
     let f = [...allProducts];
     if (activeCategory !== 'All') {
-      f = f.filter(p => (SUBCATEGORY_TO_PARENT[p.categoryId] || 'Other') === activeCategory);
+      f = f.filter(p => getCategoryName(p.categoryId) === activeCategory);
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       f = f.filter(p => 
         p.name.toLowerCase().includes(q) || 
-        (CATEGORY_MAP[p.categoryId] || '').toLowerCase().includes(q) ||
-        (SUBCATEGORY_TO_PARENT[p.categoryId] || '').toLowerCase().includes(q)
+        getCategoryName(p.categoryId).toLowerCase().includes(q)
       );
     }
     switch (sortBy) {
@@ -131,7 +112,7 @@ const ProductsPage = () => {
       default: break;
     }
     return f;
-  }, [allProducts, activeCategory, searchQuery, sortBy]);
+  }, [allProducts, dbCategories, activeCategory, searchQuery, sortBy]);
 
   const handleCategory = (cat) => {
     setActiveCategory(cat); setSearchQuery('');
@@ -167,7 +148,7 @@ const ProductsPage = () => {
         <div className="pp-hero__pills">
           {categories.map(cat => (
             <button key={cat} className={`pp-hero-pill ${activeCategory === cat ? 'pp-hero-pill--active' : ''}`} onClick={() => handleCategory(cat)}>
-              {CAT_ICONS[cat] || '🎁'} {cat}
+              {CAT_ICONS[cat] ? `${CAT_ICONS[cat]} ` : ''}{cat}
             </button>
           ))}
         </div>
@@ -257,8 +238,6 @@ const ProductsPage = () => {
         {!loading && !error && displayProducts.length > 0 && (
           <div className="pp-grid">
             {displayProducts.map((p, i) => {
-              const catName  = CATEGORY_MAP[p.categoryId] || 'Gift';
-              const catIcon  = CAT_ICONS[catName] || '🎁';
               const justAdded = addedId === p.id;
 
               return (
@@ -281,6 +260,7 @@ const ProductsPage = () => {
 
                   {/* Body */}
                   <div className="ppc-body">
+                    <span className="pp-card-category">{getCategoryName(p.categoryId)}</span>
                     <div className="ppc-name">{p.name}</div>
                     <div className="ppc-vendor">by Giftora Exclusive</div>
                     <div className="ppc-stars-row">
@@ -319,7 +299,7 @@ const ProductsPage = () => {
             </div>
             <div className="qv-info-side">
               <div className="qv-cat-tag">
-                {CAT_ICONS[CATEGORY_MAP[quickView.categoryId]] || '🎁'} {CATEGORY_MAP[quickView.categoryId] || 'Gift'}
+                {CAT_ICONS[getCategoryName(quickView.categoryId)] ? `${CAT_ICONS[getCategoryName(quickView.categoryId)]} ` : ''}{getCategoryName(quickView.categoryId)}
               </div>
               <h3 className="qv-name">{quickView.name}</h3>
               <div className="qv-stars-row">★★★★★ <span>5.0 · Premium Quality</span></div>

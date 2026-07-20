@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - host
+      - main
+      - develop
   workflow_dispatch:
 
 jobs:

@@ -2,50 +2,19 @@ package com.example.nexus.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "customers")
+@PrimaryKeyJoinColumn(name = "customer_id")
 @Data
-public class Customer {
+@EqualsAndHashCode(callSuper = true)
+public class Customer extends User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customer_id")
-    private Long id;
+    @Column(name = "address")
+    private String address;
 
-    private String name;
-
-    @Column(unique = true)
-    private String username;
-
-    @Column(unique = true)
-    private String email;
-
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    private Role role = Role.CUSTOMER;
-
-    // Email verification fields
-    private boolean isVerified = false;
-    private String verificationCode;
-    private LocalDateTime codeExpiresAt;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    // Address fields
-    private String addressLine1;
-    private String addressLine2;
-    private String city;
-    private String district;
-    private String province;
-    private String postalCode;
-    private String phoneNumber;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    // Getters and Setters that map the old fields into the single JSON field or just provide basic getters
+    // If the frontend sends addressLine1 etc, we might need a DTO or just map it.
+    // For now, mapping directly to the DB column `address` as per V15.
 }

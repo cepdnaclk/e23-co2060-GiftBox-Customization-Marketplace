@@ -97,7 +97,7 @@
 }
 
 /* Link columns */
-.footer-links {
+.giftora-footer .footer-links {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 48px;
@@ -147,12 +147,12 @@
     grid-template-columns: 1fr;
     gap: 48px;
   }
-  .footer-links { grid-template-columns: repeat(3, 1fr); }
+  .giftora-footer .footer-links { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
   .footer-inner { padding: 0 24px 48px; }
-  .footer-links { grid-template-columns: repeat(2, 1fr); }
+  .giftora-footer .footer-links { grid-template-columns: repeat(2, 1fr); }
   .footer-bottom {
     flex-direction: column;
     gap: 8px;

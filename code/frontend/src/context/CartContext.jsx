@@ -1,7 +1,7 @@
 // This Context is wrapped in App.jsx
 // Any component can access cart via useCart hook
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 // Create React Context for cart state management
 const CartContext = createContext(null);
@@ -25,91 +25,65 @@ export const CartProvider = ({ children }) => {
     setItemCount(count); // #44 — update navbar badge count
   };
 
-  // ── Add to Cart (#43) ────────────────────────────────────────
-  const addToCart = useCallback(async (product) => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/cart/add`, {
-        method:      'POST',
-        credentials: 'include',           // session cookie
-        headers:     { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId: product.id,
-          name:      product.name,
-          price:     product.price,
-          imageUrl:  product.imageUrl,
-        }),
-      });
-
-      const data = await res.json();
-      setCartItems(data.items);
-      recalculate(data.items);
-
-      setAddedId(product.id);
-      setTimeout(() => setAddedId(null), 1500);
-
-    } catch (err) {
-      console.error('Add to cart failed:', err);
-    }
-  }, []);
-
-  // ── Remove item ──────────────────────────────────────────────
-  const removeItem = useCallback(async (productId) => {
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/cart/remove/${productId}`,
-        { method: 'DELETE', credentials: 'include' }
-      );
-      const data = await res.json();
-      setCartItems(data.items);
-      recalculate(data.items);
-    } catch (err) {
-      console.error('Remove failed:', err);
-    }
-  }, []);
-
-  // ── Update quantity ──────────────────────────────────────────
-  const updateQty = useCallback(async (productId, quantity) => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/cart/update`, {
-        method:      'PUT',
-        credentials: 'include',
-        headers:     { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity }),
-      });
-      const data = await res.json();
-      setCartItems(data.items);
-      recalculate(data.items);
-    } catch (err) {
-      console.error('Update qty failed:', err);
-    }
-  }, []);
-
-  // ── Clear cart ───────────────────────────────────────────────
-  const clearCart = useCallback(async () => {
-    try {
-      await fetch(`${process.env.REACT_APP_API_URL}/api/cart/clear`,
-        { method: 'DELETE', credentials: 'include' }
-      );
-      setCartItems([]);
-      setItemCount(0);
-      setCartTotal(0);
-    } catch (err) {
-      console.error('Clear cart failed:', err);
-    }
-  }, []);
+  // ── Sync to localStorage ──────────────────────────────────────
+  useEffect(() => {
+    localStorage.setItem('giftora_cart', JSON.stringify(cartItems));
+    recalculate(cartItems);
+  }, [cartItems]);
 
   // ── Load cart on mount ───────────────────────────────────────
   const loadCart = useCallback(async () => {
     try {
-      const res  = await fetch(`${process.env.REACT_APP_API_URL}/api/cart`,
-        { credentials: 'include' }
-      );
-      const data = await res.json();
-      setCartItems(data.items  || []);
-      recalculate(data.items   || []);
+      const saved = localStorage.getItem('giftora_cart');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setCartItems(parsed);
+        recalculate(parsed);
+      }
     } catch (err) {
-      console.error('Load cart failed:', err);
+      console.error('Failed to parse cart from local storage:', err);
     }
+  }, []);
+
+  // ── Add to Cart (#43) ────────────────────────────────────────
+  const addToCart = useCallback(async (product) => {
+    setCartItems(prev => {
+      const existing = prev.find(i => i.productId === product.id);
+      if (existing) {
+        return prev.map(i => i.productId === product.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, {
+        productId: product.id,
+        name:      product.name,
+        price:     product.price,
+        quantity:  1,
+        imageUrl:  product.imageUrl,
+      }];
+    });
+
+    setAddedId(product.id);
+    setTimeout(() => setAddedId(null), 1500);
+  }, []);
+
+  // ── Remove item ──────────────────────────────────────────────
+  const removeItem = useCallback(async (productId) => {
+    setCartItems(prev => prev.filter(i => i.productId !== productId));
+  }, []);
+
+  // ── Update quantity ──────────────────────────────────────────
+  const updateQty = useCallback(async (productId, quantity) => {
+    if (quantity <= 0) {
+      setCartItems(prev => prev.filter(i => i.productId !== productId));
+      return;
+    }
+    setCartItems(prev => prev.map(i => i.productId === productId ? { ...i, quantity } : i));
+  }, []);
+
+  // ── Clear cart ───────────────────────────────────────────────
+  const clearCart = useCallback(async () => {
+    setCartItems([]);
+    setItemCount(0);
+    setCartTotal(0);
   }, []);
 
   return (

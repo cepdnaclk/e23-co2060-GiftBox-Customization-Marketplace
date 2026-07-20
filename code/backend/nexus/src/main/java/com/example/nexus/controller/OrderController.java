@@ -41,22 +41,83 @@ public class OrderController {
         return orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId);
     }
 
-    // 2. Vendor order status update (only from PENDING to CONFIRMED or CANCELLED)
+    // 1c. Customer-specific orders summary
+    @GetMapping("/orders/customer/{customerId}/summary")
+    public ResponseEntity<?> getCustomerOrderSummary(@PathVariable Integer customerId) {
+        List<Order> orders = orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId);
+        
+        int totalOrders = orders.size();
+        int delivered = 0;
+        int inProgress = 0;
+        BigDecimal totalSpent = BigDecimal.ZERO;
+
+        for (Order order : orders) {
+            String status = order.getStatus();
+            if ("DELIVERED".equalsIgnoreCase(status)) {
+                delivered++;
+            } else if ("PENDING".equalsIgnoreCase(status) || "CONFIRMED".equalsIgnoreCase(status) || "SHIPPED".equalsIgnoreCase(status)) {
+                inProgress++;
+            }
+            if (!"CANCELLED".equalsIgnoreCase(status)) {
+                totalSpent = totalSpent.add(order.getTotalAmount());
+            }
+        }
+
+        Map<String, Object> summary = new java.util.HashMap<>();
+        summary.put("totalOrders", totalOrders);
+        summary.put("delivered", delivered);
+        summary.put("inProgress", inProgress);
+        summary.put("totalSpent", totalSpent);
+
+        return ResponseEntity.ok(summary);
+    }
+
+    // 2. Order status update (Vendor or Customer)
     @PutMapping("/orders/{orderId}/status")
     public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> request) {
         return orderRepository.findById(orderId).map(order -> {
             String newStatus = request.get("status");
+            String currentStatus = order.getStatus();
 
-            // Only allow status change if current status is PENDING
-            if ("PENDING".equals(order.getStatus())) {
-                if ("CONFIRMED".equals(newStatus) || "CANCELLED".equals(newStatus)) {
-                    order.setStatus(newStatus);
-                    orderRepository.save(order);
-                    return ResponseEntity.ok().body("Order " + newStatus);
-                }
+            // Allow vendor to change PENDING to CONFIRMED or CANCELLED
+            if ("PENDING".equals(currentStatus) && ("CONFIRMED".equals(newStatus) || "CANCELLED".equals(newStatus))) {
+                order.setStatus(newStatus);
+                orderRepository.save(order);
+                return ResponseEntity.ok().body("Order " + newStatus);
             }
+            
+            // Allow customer to mark as RECEIVED if it's currently DELIVERED
+            if ("RECEIVED".equals(newStatus) && "DELIVERED".equals(currentStatus)) {
+                order.setStatus(newStatus);
+                orderRepository.save(order);
+                return ResponseEntity.ok().body("Order marked as RECEIVED");
+            }
+
             return ResponseEntity.badRequest().body("Action not allowed for current status");
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // 2b. Get items for an order
+    @GetMapping("/orders/{orderId}/items")
+    public ResponseEntity<?> getOrderItems(@PathVariable Integer orderId) {
+        List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
+        List<Map<String, Object>> response = new java.util.ArrayList<>();
+        
+        for (OrderItem item : items) {
+            Product product = productRepository.findById(item.getProductId()).orElse(null);
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("productId", item.getProductId());
+            map.put("quantity", item.getQuantity());
+            map.put("unitPrice", item.getUnitPrice());
+            if (product != null) {
+                map.put("name", product.getName());
+                map.put("imageUrl", product.getImageUrl());
+            } else {
+                map.put("name", "Unknown Product");
+            }
+            response.add(map);
+        }
+        return ResponseEntity.ok(response);
     }
 
     // 3. Place custom box order
@@ -67,9 +128,6 @@ public class OrderController {
             // Validate request
             if (request.getCustomerId() == null) {
                 return ResponseEntity.badRequest().body("Validation Error: customerId is required.");
-            }
-            if (request.getVendorId() == null) {
-                return ResponseEntity.badRequest().body("Validation Error: vendorId is required for custom boxes.");
             }
             if (request.getDeliveryAddress() == null || request.getDeliveryAddress().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Validation Error: deliveryAddress is required.");
@@ -107,7 +165,7 @@ public class OrderController {
             // Create and save the Order
             Order order = new Order();
             order.setCustomerId(request.getCustomerId());
-            order.setVendorId(request.getVendorId());
+            order.setVendorId(null); // Multi-vendor order, no specific vendor assigned
             order.setDeliveryAddress(request.getDeliveryAddress());
             order.setOccasion(request.getOccasion());
             order.setBoxSize(request.getBoxSize());

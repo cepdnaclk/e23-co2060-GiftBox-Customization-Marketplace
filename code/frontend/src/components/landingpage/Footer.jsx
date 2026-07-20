@@ -6,9 +6,24 @@ const Footer = () => {
   const navigate = useNavigate();
 
   const FOOTER_COLS = [
-    { heading: 'Shop',    links: ['Gift Bundles', 'Build a Box', 'Featured', 'New Arrivals'] },
-    { heading: 'Vendors', links: ['Join Giftora', 'Vendor Login', 'Guidelines', 'Benefits']  },
-    { heading: 'Support', links: ['Help Center', 'Order Tracking', 'Returns', 'Contact Us']  },
+    { heading: 'Shop',    links: [
+      { label: 'Gift Bundles', path: '/products' },
+      { label: 'Build a Box', path: '/build-box' },
+      { label: 'Featured', path: '/products' },
+      { label: 'New Arrivals', path: '/products' }
+    ]},
+    { heading: 'Vendors', links: [
+      { label: 'Join Giftora', path: '/vendor-register' },
+      { label: 'Vendor Login', path: '/login' },
+      { label: 'Guidelines', path: '/vendor-landing' },
+      { label: 'Benefits', path: '/vendor-landing' }
+    ]},
+    { heading: 'Support', links: [
+      { label: 'Help Center', path: '/about-us' },
+      { label: 'Order Tracking', path: '/customer/orders' },
+      { label: 'Returns', path: '/about-us' },
+      { label: 'Contact Us', path: '/about-us' }
+    ]},
   ];
 
   return (
@@ -37,7 +52,13 @@ const Footer = () => {
             <div key={col.heading} className="footer-col">
               <div className="footer-col__heading">{col.heading}</div>
               {col.links.map(link => (
-                <button key={link} className="footer-col__link">{link}</button>
+                <button 
+                  key={link.label} 
+                  className="footer-col__link"
+                  onClick={() => navigate(link.path)}
+                >
+                  {link.label}
+                </button>
               ))}
             </div>
           ))}

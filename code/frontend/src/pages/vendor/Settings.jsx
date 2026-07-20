@@ -272,7 +272,9 @@ const Settings = () => {
 
   useEffect(() => {
     if (VENDOR_ID) {
-      fetch(`${API_BASE}/vendors/${VENDOR_ID}`)
+      fetch(`${API_BASE}/vendors/${VENDOR_ID}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      })
         .then(res => {
           if (!res.ok) throw new Error("Failed to fetch profile");
           return res.json();
@@ -324,8 +326,11 @@ const Settings = () => {
 
     fetch(`${API_BASE}/vendors/${VENDOR_ID}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      body: JSON.stringify(shopData)
     })
       .then(res => {
         if (!res.ok) throw new Error("Failed to save changes");

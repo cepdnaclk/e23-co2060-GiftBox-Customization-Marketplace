@@ -1,6 +1,6 @@
 // Core library
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
 // Vendor components
 import Sidebar from '../components/vendor/Sidebar';
@@ -11,12 +11,20 @@ import './AdminLayout.css';
 
 // Vendor layout wrapper component providing sidebar and top navigation
 const VendorLayout = ({ children }) => {
-  const userRole = localStorage.getItem('userRole');
+  const userRole = localStorage.getItem('role');
   const userId = localStorage.getItem('userId');
+  const location = useLocation();
+  const mainContentRef = useRef(null);
+
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
 
   // Route Guard: Redirect to login if user is not authorized as a vendor
   if (!userId || (userRole !== 'VENDOR' && userRole !== 'SELLER' && userRole !== 'PARTNER')) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -29,7 +37,7 @@ const VendorLayout = ({ children }) => {
         <Sidebar />
 
         {/* Main content area */}
-        <main className="main-content">
+        <main className="main-content" ref={mainContentRef}>
           {children}
         </main>
 

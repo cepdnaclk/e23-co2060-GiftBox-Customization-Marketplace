@@ -140,7 +140,9 @@ const Orders = () => {
         return;
       }
 
-      const res = await fetch(`${API_BASE}/vendors/${sellerId}/orders`);
+      const res = await fetch(`${API_BASE}/vendors/${sellerId}/orders`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      });
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setOrders(data);
@@ -160,7 +162,10 @@ const Orders = () => {
     try {
       const res = await fetch(`${API_BASE}/orders/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
         body: JSON.stringify({ status: newStatus })
       });
       if (!res.ok) throw new Error("Update failed");
@@ -250,7 +255,7 @@ const Orders = () => {
             </thead>
             <tbody>
               {pageSlice.map((order, i) => (
-                <tr key={order.order_id} className="orders-table-row">
+                <tr key={order.order_id} className={`orders-table-row ${order.status === 'PENDING' ? 'orders-row-pending-special' : ''}`}>
                   <td className="orders-order-id">#{order.order_id}</td>
                   <td>{order.delivery_address}</td>
                   <td>{new Date(order.created_at).toLocaleDateString()}</td>

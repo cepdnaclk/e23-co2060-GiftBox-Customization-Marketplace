@@ -115,7 +115,7 @@ const BoxBuilderPage = () => {
     
     setSubmitting(true);
     const orderPayload = {
-      customerId: 5, vendorId: 2, deliveryAddress, occasion, boxSize: boxSize.id,
+      customerId: 5, deliveryAddress, occasion, boxSize: boxSize.id,
       giftMessage, recipientName, wrappingStyle,
       items: Object.entries(selectedItems).map(([id, qty]) => ({ productId: parseInt(id), quantity: qty }))
     };

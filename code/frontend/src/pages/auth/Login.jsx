@@ -9,7 +9,6 @@ import { assets } from '../../assets/login/assets';
 import './Login.css';
 
 // PASSWORD STRENGTH CHECKER
-// ============================================================================
 const getPasswordStrength = (password) => {
   if (!password) return { score: 0, label: '', color: '' };
 
@@ -63,9 +62,7 @@ const Login = () => {
     setErrors({});
   };
 
-  // Form Validation 
-
-  // Validate login form
+  // ── Validate login form ─────────────────────────────────────────────────
   const validateLoginForm = () => {
     const newErrors = {};
     if (!username.trim()) newErrors.username = 'Username is required';
@@ -75,7 +72,7 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Validate signup form
+  // ── Validate signup form ────────────────────────────────────────────────
   const validateSignupForm = () => {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Full name is required';
@@ -92,7 +89,7 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Form Submit Handler
+  // ── Form Submit Handler ─────────────────────────────────────────────────
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
@@ -105,9 +102,11 @@ const Login = () => {
     setLoading(true);
 
     try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
       if (state === 'Sign Up') {
-        // REGISTRATION FLOW
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+        // ── REGISTRATION FLOW ──────────────────────────────────
+        const response = await fetch(`${apiUrl}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, username, email, password }),
@@ -131,8 +130,8 @@ const Login = () => {
           }
         }
       } else {
-        // LOGIN FLOW
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        // ── LOGIN FLOW WITH JWT ────────────────────────────────
+        const response = await fetch(`${apiUrl}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
@@ -140,29 +139,25 @@ const Login = () => {
 
         const data = await response.json();
 
-        if (data.success === true) {
-          const userRole = data.role;
-          // FIXED — only saves token if it actually exists
-          localStorage.setItem('userRole', userRole);
+        if (data.success === true && data.accessToken) {
+          // ✅ Store JWT tokens in localStorage
+          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('refreshToken', data.refreshToken);
+          localStorage.setItem('role', data.role);
+          localStorage.setItem('userId', data.userId);
           localStorage.setItem('username', username);
 
-          // Only save token if backend actually sends one
-          if (data.token) {
-            localStorage.setItem('token', data.token);
-          }
+          console.log('✅ Login successful! JWT Token stored.');
 
-          // Only save userId if backend actually sends one  
-          if (data.userId) {
-            localStorage.setItem('userId', data.userId);
-          }
-
-          // Route user to appropriate dashboard based on role
+          // ── Route user based on role ──────────────────────────
+          const userRole = data.role;
+          
           if (userRole === 'ADMIN') {
             navigate('/admin');
           } else if (userRole === 'VENDOR' || userRole === 'SELLER' || userRole === 'PARTNER') {
             navigate('/vendor');
           } else if (userRole === 'CUSTOMER') {
-            navigate('/home');
+            navigate('/customer/home');
           } else if (userRole === 'ASSEMBLER') {
             navigate('/assembler-dashboard');
           } else {
@@ -175,6 +170,8 @@ const Login = () => {
             setErrors(prev => ({ ...prev, username: errorMessage }));
           } else if (errorMessage.toLowerCase().includes('password')) {
             setErrors(prev => ({ ...prev, password: errorMessage }));
+          } else if (errorMessage.toLowerCase().includes('verify')) {
+            setErrors(prev => ({ ...prev, general: '📧 Please verify your email first. Check your inbox!' }));
           } else {
             setErrors(prev => ({ ...prev, general: errorMessage }));
           }

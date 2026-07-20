@@ -18,7 +18,9 @@ const PendingVendors = () => {
 
   // Fetch pending vendors from backend API on component mount
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/vendors`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/vendors`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+    })
       .then(res => res.json())
       .then(data => {
         // Filter for pending vendors and map to local state structure
@@ -53,6 +55,7 @@ const PendingVendors = () => {
   const handleStatusUpdate = (id, newStatus) => {
     fetch(`${process.env.REACT_APP_API_URL}/api/vendors/${id}/status?status=${newStatus}`, {
       method: 'PUT',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
     })
     .then(response => {
       if (response.ok) {

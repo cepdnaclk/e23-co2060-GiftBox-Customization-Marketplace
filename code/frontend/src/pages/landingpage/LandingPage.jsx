@@ -1,5 +1,6 @@
 // Core libraries and routing
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 
 // Layout components
@@ -11,6 +12,9 @@ import { useCart } from '../../context/CartContext';
 
 // Stylesheet
 import './LandingPage.css';
+import './ProductsPage.css'; // For Quick View modal styles
+import landingPage1Img from '../../assets/landingpage/landing_page_1.png';
+import landingPage2Img from '../../assets/landingpage/landing_page_2.png';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -18,13 +22,6 @@ const FEATURES = [
   { icon: '🎨', title: 'Fully Custom',   desc: 'Build your own box from scratch' },
   { icon: '🚀', title: 'Fast Delivery',  desc: 'Same day delivery available'     },
   { icon: '💝', title: 'Luxury Packing', desc: 'Premium gift wrapping included'  },
-];
-
-const STEPS = [
-  { icon: '🛍️', title: 'Browse & Pick',  desc: 'Choose items from any of our trusted local vendors'    },
-  { icon: '📦', title: 'We Pack It',      desc: 'We hand-assemble everything into a beautiful gift box' },
-  { icon: '🎀', title: 'Add a Message',   desc: 'Personalise with a handwritten card or ribbon'         },
-  { icon: '🚚', title: 'Fast Delivery',   desc: "Delivered to your loved one's door island-wide"        },
 ];
 
 const TESTIMONIALS = [
@@ -114,7 +111,7 @@ const SHOWCASE_BOXES = [
       { icon: '🍪', label: 'Macarons' },
     ],
     image: '/boxes/birthday_box.png',
-    accent: '#5DADE2',
+    accent: '#C9A961',
     tag: 'Most Popular',
   },
   {
@@ -606,7 +603,7 @@ const OccasionSelector = () => {
   );
 };
 
-// ─── Gift Box Showcase (chamacomputers.lk layout) ─────────────────────────────
+// ─── Gift Box Showcase ─────────────────────────────
 
 const GiftBoxShowcase = () => {
   const navigate = useNavigate();
@@ -823,7 +820,7 @@ const FeaturedProducts = () => {
                 style={{ animationDelay: `${i * 0.09}s` }}
               >
                 <div className="product-card__image">
-                  <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={p.imageUrl} alt={p.name} className="featured-product-image" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <div className="product-card__hover-actions">
                     <button className="product-action-btn">🛒 Add to Cart</button>
                     <button className="product-action-btn product-action-btn--outline">Quick View</button>
@@ -865,6 +862,21 @@ const CATEGORY_MAP = {
   22: "Self-Care & Wellness", 23: "Scented Candles", 24: "Organic Soaps & Bath", 25: "Lotions & Skincare",
   26: "Gift Boxes & Packaging", 27: "Wooden Keepsake Boxes", 28: "Magnetic Cardboard Boxes", 29: "Velvet Gift Boxes",
   30: "Flowers & Botanicals", 31: "Fresh Flowers", 32: "Preserved & Dried Flowers", 33: "Mini Succulents"
+};
+
+const CAT_ICONS = { 
+  All: '🛍️', 
+  'Drinks & Beverages': '🍷', Watches: '⌚', 'Perfume & Fragrance': '🌸', 
+  'Teddy Bears & Plushes': '🧸', 'Jewelry & Accessories': '💍', 'Chocolates & Sweets': '🍫',
+  "Men's Watches": '⌚', "Ladies' Watches": '⌚', "Minimalist Watches": '⌚',
+  "Premium Truffles": '🍫', "Bakery & Cookies": '🍪', "Macarons & Cupcakes": '🧁',
+  "Men's Fragrances": '🌸', "Ladies' Perfumes": '🌸',
+  "Plush Toys": '🧸', "Newborn Plushes": '🧸',
+  "Bangles & Bracelets": '💍', "Necklaces & Pendants": '💍', Earrings: '💍',
+  "Non-Alcoholic Wines": '🍷', "Gourmet Coffee & Teas": '☕',
+  "Self-Care & Wellness": '🧼', "Scented Candles": '🕯️', "Organic Soaps & Bath": '🧼', "Lotions & Skincare": '🧴',
+  "Gift Boxes & Packaging": '📦', "Wooden Keepsake Boxes": '📦', "Magnetic Cardboard Boxes": '📦', "Velvet Gift Boxes": '🎁',
+  "Flowers & Botanicals": '💐', "Fresh Flowers": '💐', "Preserved & Dried Flowers": '🥀', "Mini Succulents": '🌵'
 };
 
 const TrendingGrid = () => {
@@ -936,7 +948,7 @@ const TrendingGrid = () => {
 
             {/* Image */}
             <div className="t-card__image">
-              <img src={p.imageUrl} alt={p.name} loading="lazy" />
+              <img src={p.imageUrl} alt={p.name} className="trending-product-image" loading="lazy" />
               {/* Quick View overlay */}
               <div className="t-card__overlay" onClick={() => setQuickView(p)}>
                 <span className="t-card__qv-btn">Quick View</span>
@@ -1056,49 +1068,45 @@ const TrendingGrid = () => {
       </div>
 
       {/* Quick View Modal */}
-      {quickView && (
-        <div className="qv-overlay" onClick={() => setQuickView(null)}>
+      {quickView && createPortal(
+        <div className="qv-backdrop" onClick={() => setQuickView(null)}>
           <div className="qv-modal" onClick={e => e.stopPropagation()}>
             <button className="qv-close" onClick={() => setQuickView(null)}>✕</button>
-            <div className="qv-image">
+            <div className="qv-img-side">
               <img src={quickView.imageUrl} alt={quickView.name} />
+              <div className="qv-img-grad" />
             </div>
-            <div className="qv-body">
-              <span className="t-card__category">{CATEGORY_MAP[quickView.categoryId] || 'Gift Item'}</span>
-              <h3 className="qv-name">{quickView.name}</h3>
-              <div className="qv-stars">
-                {Array.from({ length: 5 }, (_, idx) => (
-                  <span key={idx} style={{ color: idx < Math.round(Number(quickView.rating || 5)) ? 'var(--gold)' : 'rgba(0,0,0,0.15)' }}>★</span>
-                ))}
-                <span> {quickView.rating ? Number(quickView.rating).toFixed(1) : '5.0'} rating</span>
+            <div className="qv-info-side">
+              <div className="qv-cat-tag">
+                {CAT_ICONS[CATEGORY_MAP[quickView.categoryId]] || '🎁'} {CATEGORY_MAP[quickView.categoryId] || 'Gift'}
               </div>
-              <div className="qv-price" style={{ margin: '12px 0' }}>LKR {Number(quickView.price).toLocaleString()}</div>
-              <p className="qv-desc">{quickView.description || 'A premium curated gift item from Giftora\'s partners. Beautifully packaged and ready to delight.'}</p>
-              
-              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+              <h3 className="qv-name">{quickView.name}</h3>
+              <div className="qv-stars-row">★★★★★ <span>5.0 · Premium Quality</span></div>
+              <div className="qv-price">LKR {Number(quickView.price).toLocaleString()}</div>
+              <div className="qv-sep" />
+              <p className="qv-desc">{quickView.description || "A premium curated gift from Giftora's exclusive collection. Hand-packed with love, beautifully presented, and ready to create a lasting memory."}</p>
+              <div className="qv-features">
+                {['🎀 Gift Wrapped','✍️ Personal Note','🚚 Island-wide Delivery'].map((f,i) => <span key={i} className="qv-feat">{f}</span>)}
+              </div>
+              <div className="qv-actions">
                 <button
-                  className="qv-view-btn"
-                  onClick={() => {
-                    addToCart(quickView);
-                    setQuickView(null);
-                  }}
-                  style={{ flex: 1, background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', color: '#fff' }}
+                  className="qv-cta qv-cta--primary"
+                  onClick={() => { addToCart(quickView); setQuickView(null); }}
                 >
-                  Add to Cart
+                  🛒 Add to Cart
                 </button>
-                <button className="qv-view-btn qv-view-btn--outline" onClick={() => { setQuickView(null); navigate('/products'); }} style={{ flex: 1 }}>
-                  View All Products →
-                </button>
+                <button className="qv-cta qv-cta--outline" onClick={() => { setQuickView(null); navigate('/products'); }}>View All →</button>
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );
 };
 
-// ─── NEW: Why Giftora — Value Props Strip ────────────────────────────────────
+// ─── Why Giftora — Value Props Strip ────────────────────────────────────
 
 const StatCounter = ({ num, suffix, start }) => {
   const count = useCountUp(num, 2000, start);
@@ -1134,36 +1142,6 @@ const WhyGiftora = () => {
   );
 };
 
-// ─── How It Works ─────────────────────────────────────────────────────────────
-
-const HowItWorks = () => {
-  const [ref, visible] = useReveal();
-  return (
-    <section className={`how-it-works section-reveal ${visible ? 'visible' : ''}`} ref={ref}>
-      <div className="how-it-works__bg-accent" />
-      <div className="section-inner">
-        <div className="section-label center">Process</div>
-        <h2 className="section-title center">How Giftora Works</h2>
-        <p className="section-subtitle">From browsing to doorstep in four simple steps</p>
-
-        <div className="how-it-works__steps">
-          {STEPS.map((step, i) => (
-            <React.Fragment key={i}>
-              <div className="step-card" style={{ animationDelay: `${i * 0.13}s` }}>
-                <div className="step-card__badge">{i + 1}</div>
-                <div className="step-card__icon">{step.icon}</div>
-                <div className="step-card__title">{step.title}</div>
-                <p className="step-card__desc">{step.desc}</p>
-              </div>
-              {i < STEPS.length - 1 && <div className="step-connector" />}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
 // ─── Testimonials ─────────────────────────────────────────────────────────────
 
 const Testimonials = () => {
@@ -1173,7 +1151,7 @@ const Testimonials = () => {
       <div className="testimonials__bg" />
       <div className="section-inner">
         <div className="section-label center">Love Notes</div>
-        <h2 className="section-title center">What Our Customers Say</h2>
+        <h2 className="section-title center" style={{ fontSize: '50px'}}>What Our Customers Say</h2>
 
         <div className="testimonials__grid">
           {TESTIMONIALS.map((t, i) => (
@@ -1206,7 +1184,6 @@ const BuilderCTA = () => {
       <div className="builder-cta__orb builder-cta__orb--1" />
       <div className="builder-cta__orb builder-cta__orb--2" />
       <div className="builder-cta__inner">
-        <div className="builder-cta__emoji">🎁</div>
         <h2 className="builder-cta__title">Design Your Dream Gift Box</h2>
         <p className="builder-cta__desc">
           Mix items from different vendors, add a personal message, choose your ribbon color — then we'll turn it into something unforgettable.
@@ -1229,6 +1206,71 @@ const BuilderCTA = () => {
   );
 };
 
+// ─── Custom Promotion Banner ───────────────────────────
+
+const CustomPromotionBanner = () => {
+  const navigate = useNavigate();
+  const [ref, visible] = useReveal(0.1);
+
+  return (
+    <section className={`custom-promo section-reveal ${visible ? 'visible' : ''}`} ref={ref}>
+      <div className="custom-promo__inner">
+        <div className="custom-promo__content">
+          <h2 className="custom-promo__title">Curate</h2>
+          <h3 className="custom-promo__subtitle">your masterpiece</h3>
+          <p className="custom-promo__desc">
+            Mix and match premium items from multiple vendors to build an unforgettable gift box.
+          </p>
+          <button className="btn-hero-primary large" onClick={() => navigate('/build-box')}>
+            <span>Build your own box</span>
+            <span className="btn-arrow">→</span>
+          </button>
+        </div>
+        <div className="custom-promo__image-wrapper">
+          <img src={landingPage1Img} alt="Gift Customization" className="custom-promo__image promo-curate-img" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const CustomHowItWorks = () => {
+  const [ref, visible] = useReveal(0.1);
+
+  const steps = [
+    { title: "Select Your Box", desc: "Choose from our premium packaging options to set the perfect stage." },
+    { title: "Handpick the Gifts", desc: "Mix and match items from top local vendors for a unique curation." },
+    { title: "Add a Personal Touch", desc: "Include a heartfelt message and signature gold ribbon." },
+    { title: "Delivered with Care", desc: "We assemble and deliver it straight to your loved one's door." },
+  ];
+
+  return (
+    <section className={`custom-promo custom-promo--reversed section-reveal ${visible ? 'visible' : ''}`} ref={ref}>
+      <div className="custom-promo__inner">
+        <div className="custom-promo__image-wrapper">
+          <img src={landingPage2Img} alt="How It Works" className="custom-promo__image promo-how-it-works-img" />
+        </div>
+        <div className="custom-promo__content">
+          <h2 className="custom-promo__title" style={{ fontSize: '64px' }}>How it Works</h2>
+          <h3 className="custom-promo__subtitle" style={{ fontSize: '32px' }}>Simple. Elegant. Yours.</h3>
+          
+          <div className="custom-steps">
+            {steps.map((step, i) => (
+              <div key={i} className="custom-step">
+                <div className="custom-step__number">{i + 1}</div>
+                <div className="custom-step__text">
+                  <div className="custom-step__title">{step.title}</div>
+                  <div className="custom-step__desc">{step.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const LandingPage = () => (
@@ -1236,14 +1278,18 @@ const LandingPage = () => (
     <Header />
     <main>
       <HeroSection />
-      <OccasionSelector />
-      <PromoBanner />
-      <GiftBoxShowcase />
-      <TrendingGrid />
-      <WhyGiftora />
-      <HowItWorks />
-      <Testimonials />
-      <BuilderCTA />
+      {/* Wrap everything below Hero in a unified light background */}
+      <div className="unified-light-bg">
+        {/* <OccasionSelector /> */}
+        {/* <PromoBanner /> */}
+        <CustomPromotionBanner />
+        <CustomHowItWorks />
+        <GiftBoxShowcase />
+        <TrendingGrid />
+        {/* <WhyGiftora /> */}
+        <Testimonials />
+        <BuilderCTA />
+      </div>
     </main>
     <Footer />
   </div>

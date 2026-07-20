@@ -1,0 +1,255 @@
+/* Settings.css — Giftora Customer Panel — Light Theme */
+@import './customer-theme.css';
+
+
+
+/* ── Loading ── */
+.st-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ct-bg);
+  color: var(--ct-text-muted);
+  font-size: 15px;
+  gap: 16px;
+}
+
+.st-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(201,169,97,0.2);
+  border-top-color: var(--ct-gold);
+  border-radius: 50%;
+  animation: st-spin 0.8s linear infinite;
+}
+
+@keyframes st-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes st-fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Back Button inside Hero ── */
+.st-back-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--ct-font);
+  margin-bottom: 12px;
+  transition: color var(--ct-transition);
+}
+
+.st-back-btn:hover {
+  color: #FFFFFF;
+}
+
+/* ── Tabs ── */
+.st-tabs {
+  max-width: 900px;
+  margin: 24px auto 0;
+  padding: 0 48px;
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--ct-border);
+}
+
+.st-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--ct-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--ct-radius-sm) var(--ct-radius-sm) 0 0;
+  transition: all var(--ct-transition);
+  font-family: var(--ct-font);
+}
+
+.st-tab:hover {
+  color: var(--ct-text);
+  background: rgba(201,169,97,0.05);
+}
+
+.st-tab.active {
+  color: var(--ct-gold);
+  border-bottom-color: var(--ct-gold);
+  background: rgba(201,169,97,0.06);
+}
+
+.st-tab-icon {
+  font-size: 15px;
+}
+
+/* ── Tab Content ── */
+.st-tab-content {
+  max-width: 900px;
+  margin: 24px auto 0;
+  padding: 0 48px;
+}
+
+/* ── Card ── */
+.st-card {
+  background: var(--ct-surface);
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius-lg);
+  padding: 32px;
+  box-shadow: var(--ct-shadow);
+  animation: st-fadeUp 0.25s ease both;
+}
+
+.st-card-header {
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(201,169,97,0.1);
+}
+
+.st-card-title {
+  font-family: var(--ct-font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ct-text);
+  margin: 0 0 4px;
+}
+
+.st-card-desc {
+  font-size: 13px;
+  color: var(--ct-text-muted);
+  margin: 0;
+}
+
+/* ── Form ── */
+.st-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.st-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.st-form-row .st-form-group {
+  margin-bottom: 0;
+}
+
+.st-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ct-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.st-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: #FFFFFF;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: var(--ct-radius-sm);
+  color: var(--ct-text);
+  font-size: 14px;
+  font-family: var(--ct-font);
+  outline: none;
+  transition: border-color var(--ct-transition), box-shadow var(--ct-transition);
+  box-sizing: border-box;
+}
+
+.st-input::placeholder {
+  color: var(--ct-text-light);
+}
+
+.st-input:hover {
+  border-color: rgba(201,169,97,0.4);
+}
+
+.st-input:focus {
+  border-color: var(--ct-gold);
+  box-shadow: 0 0 0 3px rgba(201,169,97,0.12);
+}
+
+/* ── Error ── */
+.st-error {
+  font-size: 13px;
+  color: #dc2626;
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.15);
+  border-radius: var(--ct-radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+/* ── Buttons ── */
+.st-btn-primary {
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--ct-gold), var(--ct-gold-light));
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--ct-radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--ct-font);
+  letter-spacing: 0.3px;
+  transition: all var(--ct-transition);
+  box-shadow: 0 4px 14px rgba(201,169,97,0.25);
+}
+
+.st-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201,169,97,0.35);
+}
+
+.st-btn-primary:active {
+  transform: translateY(0);
+}
+
+.st-btn-primary.saved {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  box-shadow: 0 4px 14px rgba(74,222,128,0.25);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .st-header {
+    padding: 28px 16px 0;
+  }
+  .st-tabs {
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .st-tabs::-webkit-scrollbar { display: none; }
+  .st-tab {
+    white-space: nowrap;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .st-tab-content {
+    padding: 0 16px;
+  }
+  .st-card {
+    padding: 20px 16px;
+  }
+  .st-form-row {
+    grid-template-columns: 1fr;
+  }
+}

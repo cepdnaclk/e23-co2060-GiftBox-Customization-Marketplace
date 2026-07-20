@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "vendors") // Renamed database table
-public class Vendor {
-
-    @Id
-    @Column(name = "vendor_id")
-    private int vendorId;
+@PrimaryKeyJoinColumn(name = "vendor_id")
+public class Vendor extends User {
 
     @Column(name = "shop_name")
     private String shopName;
@@ -37,8 +34,8 @@ public class Vendor {
     }
 
     // Getters and Setters (Required for Spring Boot to work with the data)
-    public int getVendorId() { return vendorId; }
-    public void setVendorId(int vendorId) { this.vendorId = vendorId; }
+    public int getVendorId() { return super.getId() != null ? super.getId() : 0; }
+    public void setVendorId(int vendorId) { super.setId(vendorId); }
 
     public String getShopName() { return shopName; }
     public void setShopName(String shopName) { this.shopName = shopName; }

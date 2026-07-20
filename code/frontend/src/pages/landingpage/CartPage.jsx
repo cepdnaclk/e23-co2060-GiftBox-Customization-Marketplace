@@ -1,7 +1,5 @@
-// pages/landingpage/CartPage.jsx
 // Public cart — used by landing page visitors (not logged in)
-// Uses landingpage Header (transparent → solid on scroll) + Footer
-// Route: /cart
+
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,26 +21,6 @@ const CartPage = () => {
 
   useEffect(() => { loadCart(); }, []);
 
-  if (cartItems.length === 0) {
-    return (
-      <div className="cart-page">
-        <Header scrolled={scrolled} />
-        <main className="cart-main">
-          <div className="cart-empty-page">
-            <div className="cart-empty">
-              <div className="cart-empty__icon">🛒</div>
-              <h2 className="cart-empty__title">Your cart is empty</h2>
-              <p className="cart-empty__desc">Browse our collection and add something special</p>
-              <button className="cart-empty__btn" onClick={() => navigate('/products')}>
-                Browse Gifts →
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="cart-page">
       <Header scrolled={scrolled} />
@@ -58,6 +36,18 @@ const CartPage = () => {
           </div>
         </div>
 
+        {cartItems.length === 0 ? (
+          <div className="cart-empty-container">
+            <div className="cart-empty">
+              <div className="cart-empty__icon">🛒</div>
+              <h2 className="cart-empty__title">Your cart is empty</h2>
+              <p className="cart-empty__desc">Browse our collection and add something special</p>
+              <button className="cart-empty__btn" onClick={() => navigate('/products')}>
+                Browse Gifts →
+              </button>
+            </div>
+          </div>
+        ) : (
         <div className="cart-body">
           <div className="cart-items">
             <div className="cart-items__header">
@@ -113,6 +103,7 @@ const CartPage = () => {
             </button>
           </div>
         </div>
+        )}
       </main>
       <Footer />
     </div>

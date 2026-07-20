@@ -77,7 +77,9 @@ const AddItems = () => {
 
   useEffect(() => {
     const apiBase = process.env.REACT_APP_API_URL || 'https://nexus-backend-axbdfzd2g4c0fwbf.austriaeast-01.azurewebsites.net';
-    axios.get(`${apiBase}/api/categories`)
+    axios.get(`${apiBase}/api/categories`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+    })
       .then(res => setCategoriesTree(res.data))
       .catch(err => console.error("Error fetching categories:", err));
   }, []);
@@ -148,7 +150,9 @@ const AddItems = () => {
       };
 
       const SELLER_ID = localStorage.getItem('userId');
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/vendors/${SELLER_ID}/products`, payload);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/vendors/${SELLER_ID}/products`, payload, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      });
 
       setTimeout(() => {
         setSubmitted(false);

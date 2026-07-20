@@ -288,6 +288,15 @@
 .sd-table td:first-child { padding-left: 0; }
 .sd-table td:last-child  { padding-right: 0; }
 
+/* Special highlight for pending orders in dashboard */
+tr.sd-tr-pending-special td {
+  background: #fffdf5;
+}
+tr.sd-tr-pending-special td:first-child {
+  border-left: 3px solid var(--gold);
+  padding-left: 8px !important;
+}
+
 .sd-order-id {
   color: var(--gold);
   font-weight: 700;

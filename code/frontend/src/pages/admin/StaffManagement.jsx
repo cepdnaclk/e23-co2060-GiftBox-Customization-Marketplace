@@ -28,7 +28,9 @@ const StaffManagement = () => {
 
   // Fetch assemblers from backend
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/assemblers`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/assemblers`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+    })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -53,7 +55,8 @@ const StaffManagement = () => {
   const toggleStatus = (id, currentStatus) => {
     const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     fetch(`${process.env.REACT_APP_API_URL}/api/assemblers/${id}/status?status=${newStatus}`, {
-      method: 'PUT'
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
     })
       .then(res => res.json())
       .then(updated => {
@@ -73,7 +76,10 @@ const StaffManagement = () => {
   const handleAddAssembler = () => {
     fetch(`${process.env.REACT_APP_API_URL}/api/assemblers`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
       body: JSON.stringify({ ...newAssembler, status: 'ACTIVE' })
     })
       .then(res => res.json())

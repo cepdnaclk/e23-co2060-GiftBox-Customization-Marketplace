@@ -181,7 +181,9 @@ const MyItems = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/vendors/${SELLER_ID}/products`);
+      const res = await fetch(`${API_BASE}/vendors/${SELLER_ID}/products`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      });
       if (!res.ok) throw new Error('Failed to load products');
       const data = await res.json();
       setProducts(data);
@@ -196,7 +198,10 @@ const MyItems = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product?')) return;
     try {
-      const res = await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/products/${id}`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      });
       if (!res.ok) throw new Error('Delete failed');
       setProducts(prev => prev.filter(p => p.id !== id));
     } catch (err) {
@@ -244,7 +249,10 @@ const MyItems = () => {
 
       const res = await fetch(`${API_BASE}/products/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
         body: JSON.stringify(payload)
       });
 

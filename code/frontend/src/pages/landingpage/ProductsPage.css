@@ -1049,7 +1049,7 @@ button {
 }
 
 .ppc-add:hover {
-  transform: scale(1.15) rotate(90deg);
+  transform: scale(1.15);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1125,7 +1125,6 @@ button {
 .qv-close:hover {
   background: var(--gold);
   color: white;
-  transform: rotate(90deg);
 }
 
 .qv-img-side {

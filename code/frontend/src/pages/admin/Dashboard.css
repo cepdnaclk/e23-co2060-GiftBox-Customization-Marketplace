@@ -325,3 +325,28 @@
     font-size: 28px;
   }
 }
+
+/* Charts Section Layout */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* Chart Card Styling */
+.chart-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FAFAFA 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(201, 169, 97, 0.1);
+  border: 1px solid rgba(201, 169, 97, 0.15);
+  padding: 24px;
+  overflow: hidden;
+}
+
+.chart-container {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

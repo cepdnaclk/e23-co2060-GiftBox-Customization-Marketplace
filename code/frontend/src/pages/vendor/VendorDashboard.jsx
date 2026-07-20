@@ -110,7 +110,9 @@ const VendorDashboard = () => {
       setLoading(true);
       try {
         // 1. Dashboard stats
-        const dashRes = await fetch(`${API_BASE}/vendor/${SELLER_ID}/dashboard`);
+        const dashRes = await fetch(`${API_BASE}/vendor/${SELLER_ID}/dashboard`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+        });
         if (dashRes.ok) {
           const dash = await dashRes.json();
           setStats(dash);
@@ -147,7 +149,9 @@ const VendorDashboard = () => {
         }
 
         // 2. Recent orders
-        const ordersRes = await fetch(`${API_BASE}/vendors/${SELLER_ID}/orders`);
+        const ordersRes = await fetch(`${API_BASE}/vendors/${SELLER_ID}/orders`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+        });
         if (ordersRes.ok) {
           const orders = await ordersRes.json();
           setRecent(orders.slice(0, 5)); // latest 5 only
@@ -272,7 +276,7 @@ const VendorDashboard = () => {
                 </thead>
                 <tbody>
                   {recent.map((o) => (
-                    <tr key={o.order_id}>
+                    <tr key={o.order_id} className={o.status === 'PENDING' ? 'sd-tr-pending-special' : ''}>
                       <td className="sd-td-id">#{o.order_id}</td>
                       <td>{o.delivery_address}</td>
                       <td className="sd-td-time">{timeAgo(o.created_at)}</td>

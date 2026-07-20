@@ -21,7 +21,7 @@
   font-family: 'DM Sans', sans-serif;
 }
 
-/* ── FIXED: no padding-top here — hero covers full top ── */
+/* ── hero covers full top ── */
 .cart-main {
   padding-top: 0;
 }
@@ -29,7 +29,6 @@
 /* ── Hero ── */
 .cart-hero {
   background: linear-gradient(135deg, var(--navy) 0%, var(--deep) 60%, #0d1b35 100%);
-  /* FIXED: padding-top 120px — covers fixed header (72px) + breathing room */
   padding: 120px 48px 64px;
   position: relative;
   overflow: hidden;
@@ -384,18 +383,18 @@
 }
 
 /* ── Empty state ── */
-/* FIXED: full height covers header too — navy background */
-.cart-empty-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--navy) 0%, var(--deep) 60%, #0d1b35 100%);
+.cart-empty-container {
+  padding: 80px 20px;
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
 .cart-empty {
   text-align: center;
-  padding: 40px 20px;
+  background: var(--gray-1);
+  padding: 60px 40px;
+  max-width: 500px;
+  width: 100%;
 }
 
 .cart-empty__icon  { font-size: 64px; margin-bottom: 20px; }
@@ -404,13 +403,13 @@
   font-family: 'Cormorant Garamond', serif;
   font-size: 32px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text);
   margin-bottom: 12px;
 }
 
 .cart-empty__desc  {
   font-size: 15px;
-  color: rgba(255,255,255,0.5);
+  color: var(--gray-3);
   margin-bottom: 28px;
 }
 

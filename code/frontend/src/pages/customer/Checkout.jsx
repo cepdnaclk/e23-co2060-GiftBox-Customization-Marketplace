@@ -49,7 +49,10 @@ const Checkout = () => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/standard`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
         body: JSON.stringify(orderPayload)
       });
 
@@ -93,6 +96,19 @@ const Checkout = () => {
 
   return (
     <div className="co-page">
+
+      {/* ── Hero Banner ── */}
+      <div className="ct-hero">
+        <div className="ct-hero__orb ct-hero__orb--1" />
+        <div className="ct-hero__orb ct-hero__orb--2" />
+        <div className="ct-hero__inner">
+          <div className="ct-hero__label">Secure Checkout</div>
+          <h1 className="ct-hero__title">Complete Your Order</h1>
+          <p className="ct-hero__sub">{itemCount} item{itemCount !== 1 ? 's' : ''} &middot; LKR {Number(cartTotal).toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div className="ct-body">
       <div className="co-container">
         {/* Left Form */}
         <form onSubmit={handlePlaceOrder} className="co-form-panel">
@@ -176,7 +192,8 @@ const Checkout = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>{/* end co-container */}
+      </div>{/* end ct-body */}
     </div>
   );
 };

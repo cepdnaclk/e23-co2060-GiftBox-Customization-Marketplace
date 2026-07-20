@@ -43,20 +43,33 @@ public class AdminDashboardController {
 
             // 5. Recent Orders (Latest 5 orders)
             List<Map<String, Object>> recentOrders = jdbcTemplate.queryForList(
-                "SELECT order_id AS orderId, recipient_name AS recipientName, wrap_style AS wrapStyle, status, total_amount AS totalAmount, created_at AS createdAt " +
+                "SELECT order_id AS orderId, recipient_name AS recipientName, wrapping_style AS wrapStyle, status, total_amount AS totalAmount, created_at AS createdAt " +
                 "FROM orders ORDER BY order_id DESC LIMIT 5"
             );
             response.put("recentOrders", recentOrders);
 
             // 6. Top Vendors (with product count)
             List<Map<String, Object>> topVendors = jdbcTemplate.queryForList(
-                "SELECT v.vendor_id AS id, v.shop_name AS shopName, COUNT(p.product_id) AS productCount " +
+                "SELECT v.vendor_id AS id, v.shop_name AS shopName, COUNT(p.id) AS productCount " +
                 "FROM vendors v " +
                 "LEFT JOIN products p ON v.vendor_id = p.vendor_id " +
                 "GROUP BY v.vendor_id, v.shop_name " +
                 "ORDER BY productCount DESC LIMIT 5"
             );
             response.put("topVendors", topVendors);
+
+            // 7. Order Status Distribution (For Pie Chart)
+            List<Map<String, Object>> orderStatusDistribution = jdbcTemplate.queryForList(
+                "SELECT status AS name, COUNT(*) AS value FROM orders GROUP BY status"
+            );
+            response.put("orderStatusDistribution", orderStatusDistribution);
+
+            // 8. Monthly Revenue (For Bar Chart) - Last 6 months
+            List<Map<String, Object>> monthlyRevenue = jdbcTemplate.queryForList(
+                "SELECT DATE_FORMAT(created_at, '%b') AS month, COALESCE(SUM(total_amount), 0) AS revenue " +
+                "FROM orders GROUP BY DATE_FORMAT(created_at, '%b'), DATE_FORMAT(created_at, '%Y-%m') ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC LIMIT 6"
+            );
+            response.put("monthlyRevenue", monthlyRevenue);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

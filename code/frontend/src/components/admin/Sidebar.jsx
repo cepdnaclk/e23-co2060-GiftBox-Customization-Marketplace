@@ -45,6 +45,14 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink 
+          to="/admin/categories" 
+          className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+        >
+          <FaThLarge size={18} /> 
+          <span>Categories</span>
+        </NavLink>
+
+        <NavLink 
           to="/admin/settings" 
           className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
         >

@@ -220,6 +220,17 @@
 .orders-table-row { transition: background 0.15s; }
 .orders-table-row:hover td { background: #fdf9f2; }
 
+/* Special highlight for pending orders */
+.orders-table-row.orders-row-pending-special td {
+  background: #fffdf5;
+}
+.orders-table-row.orders-row-pending-special td:first-child {
+  border-left: 3px solid #e8b84b;
+}
+.orders-table-row.orders-row-pending-special:hover td {
+  background: #fff9e6;
+}
+
 .orders-order-id {
   font-weight: 700;
   color: #1a2340;

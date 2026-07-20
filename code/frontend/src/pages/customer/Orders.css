@@ -1,206 +1,175 @@
-/* Orders.css
-   Styles for the customer Orders page.
-   Matches Giftora dark theme — same navy, gold, and fonts as GiftCustomizer.css
-   All classes use "orders-" and "order-" prefix to avoid conflicts. */
+/* Orders.css — Giftora Customer Panel — Light Theme */
+@import './customer-theme.css';
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
-
-/* ── CSS Variables — same tokens as GiftCustomizer.css ───────────────────── */
-:root {
-  --gc-bg:         #12122A;
-  --gc-surface:    #1C1C38;
-  --gc-surface2:   #23234A;
-  --gc-border:     #2E2E5A;
-  --gc-gold:       #D4A843;
-  --gc-gold-light: #F0C96A;
-  --gc-text:       #E8E8F0;
-  --gc-text-muted: #8888AA;
-  --gc-green:      #1D9E75;
-  --gc-radius:     12px;
-  --gc-radius-sm:  8px;
-}
-
-/* ── Page wrapper ─────────────────────────────────────────────────────────── */
+/* ── Page wrapper ── */
 .orders-page {
   min-height: 100vh;
-  background: var(--gc-bg);
-  color: var(--gc-text);
-  font-family: 'DM Sans', sans-serif;
-  padding: 2rem 1.5rem 4rem;
-  max-width: 900px;
-  margin: 0 auto;
+  background: var(--ct-bg);
+  font-family: var(--ct-font);
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* ── Page Header ──────────────────────────────────────────────────────────── */
-/* Flex row: title on left, "Build New Box" button on right */
+/* ── Content body ── */
+.orders-page .ct-hero {
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+}
+
+.orders-body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 48px 80px;
+}
+
+/* ── Page Header ── */
 .orders-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 2rem;
+  margin-bottom: 28px;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 12px;
 }
 
 .orders-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(24px, 4vw, 36px);
-  font-weight: 600;
-  color: var(--gc-text);
+  font-family: var(--ct-font-serif);
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 700;
+  color: var(--ct-text);
   margin-bottom: 4px;
 }
 
 .orders-subtitle {
-  color: var(--gc-text-muted);
+  color: var(--ct-text-muted);
   font-size: 14px;
 }
 
-/* "Build New Box" button — gold, matches GiftCustomizer style */
-.orders-new-btn {
-  padding: 10px 20px;
-  background: var(--gc-gold);
-  color: #12122A;
-  border: none;
-  border-radius: var(--gc-radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-
-.orders-new-btn:hover {
-  background: var(--gc-gold-light);
-}
-
-/* ── Filter Tabs ──────────────────────────────────────────────────────────── */
-/* Horizontal row of status filter buttons */
+/* ── Filter Tabs ── */
 .orders-tabs {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--gc-border);
-  padding-bottom: 1rem;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--ct-border);
+  padding-bottom: 12px;
 }
 
 .orders-tab {
-  padding: 6px 14px;
+  padding: 7px 16px;
   background: transparent;
-  border: 1px solid var(--gc-border);
+  border: 1.5px solid var(--ct-border-gray);
   border-radius: 20px;
-  color: var(--gc-text-muted);
+  color: var(--ct-text-muted);
   font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--ct-font);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--ct-transition);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .orders-tab:hover {
-  border-color: var(--gc-gold);
-  color: var(--gc-text);
+  border-color: rgba(201,169,97,0.4);
+  color: var(--ct-text);
+  background: rgba(201,169,97,0.05);
 }
 
-/* Active/selected tab — gold background */
 .orders-tab.active {
-  background: var(--gc-gold);
-  border-color: var(--gc-gold);
-  color: #12122A;
-  font-weight: 500;
+  background: linear-gradient(135deg, var(--ct-gold), var(--ct-gold-light));
+  border-color: transparent;
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(201,169,97,0.3);
 }
 
-/* Small number badge inside the "All" tab */
 .orders-tab-count {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.25);
   border-radius: 10px;
   padding: 1px 7px;
   font-size: 11px;
 }
 
 .orders-tab.active .orders-tab-count {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0,0,0,0.15);
 }
 
-/* ── Loading State ────────────────────────────────────────────────────────── */
+/* ── Loading State ── */
 .orders-loading {
   text-align: center;
-  padding: 4rem 0;
-  color: var(--gc-text-muted);
+  padding: 60px 0;
+  color: var(--ct-text-muted);
 }
 
-/* Spinning circle animation */
 .orders-spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid var(--gc-border);
-  border-top-color: var(--gc-gold);
+  border: 3px solid rgba(201,169,97,0.15);
+  border-top-color: var(--ct-gold);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin: 0 auto 1rem;
+  margin: 0 auto 16px;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ── Empty State ──────────────────────────────────────────────────────────── */
+/* ── Empty State ── */
 .orders-empty {
   text-align: center;
-  padding: 4rem 1rem;
-  color: var(--gc-text-muted);
+  padding: 64px 24px;
+  color: var(--ct-text-muted);
 }
 
 .orders-empty-emoji {
   font-size: 52px;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 .orders-empty h3 {
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--gc-text);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ct-text);
   margin-bottom: 8px;
 }
 
 .orders-empty p {
   font-size: 14px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 24px;
 }
 
-/* ── Orders List ──────────────────────────────────────────────────────────── */
-/* Vertical stack of order cards */
+/* ── Orders List ── */
 .orders-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* ── Order Card ───────────────────────────────────────────────────────────── */
-/* Each order is a clickable card */
+/* ── Order Card ── */
 .order-card {
-  background: var(--gc-surface);
-  border: 1px solid var(--gc-border);
-  border-radius: var(--gc-radius);
-  padding: 1.25rem;
+  background: var(--ct-surface);
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius-md);
+  padding: 20px 24px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--ct-transition);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  box-shadow: var(--ct-shadow);
+  animation: ct-fadeUp 0.4s ease both;
 }
 
 .order-card:hover {
-  border-color: rgba(212, 168, 67, 0.4);
-  background: var(--gc-surface2);
-  transform: translateY(-1px);
+  border-color: rgba(201,169,97,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(201,169,97,0.12);
 }
 
-/* ── Card Top Row ─────────────────────────────────────────────────────────── */
-/* Order ID + date on left, status badge on right */
 .order-card-top {
   display: flex;
   justify-content: space-between;
@@ -214,57 +183,48 @@
   gap: 3px;
 }
 
-/* Order ID — e.g. ORD-1001 */
 .order-id {
   font-size: 15px;
-  font-weight: 500;
-  color: var(--gc-text);
+  font-weight: 600;
+  color: var(--ct-text);
 }
 
-/* Order date in muted text below the ID */
 .order-date {
   font-size: 12px;
-  color: var(--gc-text-muted);
+  color: var(--ct-text-light);
 }
 
-/* Status badge — colour set dynamically via inline style in JSX */
 .order-status {
   font-size: 12px;
-  font-weight: 500;
-  padding: 4px 12px;
+  font-weight: 600;
+  padding: 4px 14px;
   border-radius: 20px;
   white-space: nowrap;
 }
 
-/* ── Items Row ────────────────────────────────────────────────────────────── */
-/* Horizontal list of item pills */
 .order-items-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-/* Each item shown as a small pill with emoji + name */
 .order-item-pill {
-  background: var(--gc-surface2);
-  border: 1px solid var(--gc-border);
+  background: var(--ct-surface-2);
+  border: 1px solid var(--ct-border);
   border-radius: 20px;
   padding: 3px 10px;
   font-size: 12px;
-  color: var(--gc-text);
+  color: var(--ct-text);
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-/* Quantity shown in muted text: ×2 */
 .order-item-qty {
-  color: var(--gc-text-muted);
+  color: var(--ct-text-muted);
   font-size: 11px;
 }
 
-/* ── Card Bottom Row ──────────────────────────────────────────────────────── */
-/* Box details on left, total price on right */
 .order-card-bottom {
   display: flex;
   justify-content: space-between;
@@ -273,7 +233,6 @@
   flex-wrap: wrap;
 }
 
-/* Small metadata items: box size, ribbon, message */
 .order-meta {
   display: flex;
   flex-wrap: wrap;
@@ -282,36 +241,35 @@
 
 .order-meta-item {
   font-size: 12px;
-  color: var(--gc-text-muted);
+  color: var(--ct-text-muted);
 }
 
-/* Total price — gold, right-aligned */
 .order-total {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--gc-gold);
+  font-family: var(--ct-font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ct-gold);
   white-space: nowrap;
 }
 
-/* ── Responsive: Mobile ───────────────────────────────────────────────────── */
-@media (max-width: 600px) {
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .orders-body {
+    padding: 24px 16px 60px;
+  }
   .orders-header {
     flex-direction: column;
   }
-
   .order-card-top {
     flex-direction: column;
   }
-
   .order-card-bottom {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .orders-tabs {
     gap: 6px;
   }
-
   .orders-tab {
     font-size: 12px;
     padding: 5px 10px;

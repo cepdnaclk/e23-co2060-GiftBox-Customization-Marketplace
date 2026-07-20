@@ -21,7 +21,9 @@ const Vendors = () => {
 
   // Fetch active and pending vendors from backend API on mount
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/vendors`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/vendors`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+    })
       .then(res => res.json())
       .then(data => {
         // Count pending vendors

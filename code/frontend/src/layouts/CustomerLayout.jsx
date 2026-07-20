@@ -6,12 +6,26 @@
 // Every customer page (GiftCustomizer, Orders, OrderDetail, Profile)
 // will be wrapped by this layout automatically through the router.
 
-import React from 'react';
-import { Outlet } from 'react-router-dom';  // Outlet renders the current page
+import React, { useEffect } from 'react';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';  // Outlet renders the current page
 import Header from '../components/customer/Header';
 import Footer from '../components/landingpage/Footer';
 
 export default function CustomerLayout() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
+
+  const userRole = localStorage.getItem('role');
+  const userId = localStorage.getItem('userId');
+
+  // Route Guard: Redirect to landing page if user is not authorized as a customer
+  if (!userId || userRole !== 'CUSTOMER') {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
@@ -23,7 +37,7 @@ export default function CustomerLayout() {
           /orders     → Orders
           /orders/:id → OrderDetail
           /profile    → Profile */}
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1, paddingTop: '64px' }}>
         <Outlet />
       </main>
 

@@ -1,15 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, User, ChevronDown, LogOut } from 'lucide-react'; // Added LogOut icon
+import { Bell, User, ChevronDown, LogOut, Settings, Package, UserCircle } from 'lucide-react';
 import CartBadge from './CartBadge.jsx';
 import './Header.css';
 
 const Header = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState('');
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const userId = localStorage.getItem('userId');
   const username = localStorage.getItem('username') || 'Customer';
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchName() {
@@ -18,10 +33,15 @@ const Header = () => {
         return;
       }
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/customers/${userId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          }
+        });
         if (res.ok) {
           const data = await res.json();
           setDisplayName(data.name || (username.includes('@') ? username.split('@')[0] : username));
+          setProfileImageUrl(data.profileImageUrl || null);
         } else {
           setDisplayName(username.includes('@') ? username.split('@')[0] : username);
         }
@@ -37,7 +57,7 @@ const Header = () => {
   const handleExit = () => {
     localStorage.clear();
     console.log("User logged out");
-    navigate('/login'); 
+    navigate('/', { replace: true }); 
   };
 
   return (
@@ -51,16 +71,15 @@ const Header = () => {
       </div>
 
       {/* Center — Nav Links */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', marginRight: '32px' }}>
         {[
           { label: 'Build a Box',  route: '/customer/build-box' },
-          { label: 'How It Works', route: '/customer/how-it-works' },
           { label: 'About Us',     route: '/customer/about-us' },
         ].map(item => (
           <button
             key={item.label}
             onClick={() => navigate(item.route)}
-            className="nav-link-btn" // Recommended: move inline styles to CSS
+            className="nav-link-btn" 
             style={{
               background: 'none',
               border: 'none',
@@ -96,40 +115,47 @@ const Header = () => {
           <span className="notification-badge"></span>
         </button>
 
-        <div className="profile-section" onClick={() => navigate('/customer/profile')}>
-          <div className="profile-info">
-            <span className="profile-name" style={{ textTransform: 'capitalize' }}>{displayName}</span>
-            <span className="profile-role">Customer</span>
+        <div className="profile-wrapper" ref={dropdownRef} style={{ position: 'relative' }}>
+          <div className="profile-section" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+            <div className="profile-info">
+              <span className="profile-name" style={{ textTransform: 'capitalize' }}>{displayName}</span>
+              <span className="profile-role">Customer</span>
+            </div>
+            <div className="profile-avatar" style={profileImageUrl ? { padding: 0, overflow: 'hidden', background: 'transparent' } : {}}>
+              {profileImageUrl ? (
+                <img src={profileImageUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+              ) : (
+                <User size={18} />
+              )}
+            </div>
+            <ChevronDown size={14} style={{ color: '#FFFFFF', transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </div>
-          <div className="profile-avatar">
-            <User size={18} />
-          </div>
-          <ChevronDown size={14} style={{ color: '#5DADE2' }} />
-        </div>
 
-        {/* Exit Button */}
-        <button 
-          className="exit-btn" 
-          onClick={handleExit}
-          title="Exit"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(231, 76, 60, 0.1)', // Subtle red background
-            border: 'none',
-            borderRadius: '8px',
-            padding: '8px',
-            cursor: 'pointer',
-            color: '#E74C3C',
-            marginLeft: '8px',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(231, 76, 60, 0.2)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(231, 76, 60, 0.1)'}
-        >
-          <LogOut size={20} />
-        </button>
+          {isDropdownOpen && (
+            <div className="profile-dropdown">
+              <div className="dropdown-arrow"></div>
+              <ul className="dropdown-menu">
+                <li onClick={() => { setIsDropdownOpen(false); navigate('/customer/profile'); }}>
+                  <UserCircle size={16} />
+                  <span>Profile</span>
+                </li>
+                <li onClick={() => { setIsDropdownOpen(false); navigate('/customer/orders'); }}>
+                  <Package size={16} />
+                  <span>Orders</span>
+                </li>
+                <li onClick={() => { setIsDropdownOpen(false); navigate('/customer/settings'); }}>
+                  <Settings size={16} />
+                  <span>Account Settings</span>
+                </li>
+                <div className="dropdown-divider"></div>
+                <li onClick={handleExit} className="dropdown-signout">
+                  <LogOut size={16} />
+                  <span>Sign out</span>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
 
       </div>
     </header>

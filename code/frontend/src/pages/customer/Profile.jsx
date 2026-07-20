@@ -1,38 +1,32 @@
 // Profile.jsx
 // Renders inside CustomerLayout via <Outlet />.
-// No full-page reload — React Router handles navigation.
+// View-only profile summary. All editing happens on the /settings page.
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function Profile() {
 
-  const [profile,      setProfile]      = useState(null);
-  const [address,      setAddress]      = useState(null);
-  const [stats,        setStats]        = useState({
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
     totalOrders: 0,
     delivered:   0,
     inProgress:  0,
     totalSpent:  0
   });
-  const [loading,      setLoading]      = useState(true);
-  const [activeTab,    setActiveTab]    = useState('info');
 
-  const [infoForm,     setInfoForm]     = useState({ name:'', email:'', phone:'' });
-  const [infoSaved,    setInfoSaved]    = useState(false);
-  const [infoError,    setInfoError]    = useState('');
-
-  const [passForm,     setPassForm]     = useState({ current:'', newPass:'', confirm:'' });
-  const [passSaved,    setPassSaved]    = useState(false);
-  const [passError,    setPassError]    = useState('');
-
-  const [addrForm,     setAddrForm]     = useState({ line1:'', line2:'', city:'', district:'', province:'', postalCode:'' });
-  const [addrSaved,    setAddrSaved]    = useState(false);
-  const [addrError,    setAddrError]    = useState('');
+  const navigate = useNavigate();
 
   const userId = localStorage.getItem('userId');
   const username = localStorage.getItem('username');
+
+  // Navigate to Settings and pre-select a tab there
+  function goToSettings(tab) {
+    navigate('/customer/settings', { state: { tab } });
+  }
 
   // ── Fetch on mount ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -42,30 +36,31 @@ export default function Profile() {
         return;
       }
       try {
-        // Fetch profile
-        const res = await fetch(`http://localhost:8080/api/customers/${userId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/users/${userId}`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+        });
         if (res.ok) {
           const data = await res.json();
           setProfile(data);
-          setInfoForm({
-            name: data.name || '',
-            email: data.email || '',
-            phone: data.phoneNumber || '',
-          });
-          
-          setAddrForm({
-            line1: data.addressLine1 || '',
-            line2: data.addressLine2 || '',
-            city: data.city || '',
-            district: data.district || '',
-            province: data.province || '',
-            postalCode: data.postalCode || '',
-          });
-          setAddress(data);
         }
 
-        // Fetch stats (mocked for now until backend orders endpoint is ready)
-        // If there's a backend endpoint for orders, you can sum it up here
+        // Fetch order stats (mocked for now until backend orders endpoint is ready)
+        try {
+          const statsRes = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/orders/customer/${userId}/summary`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+          });
+          if (statsRes.ok) {
+            const s = await statsRes.json();
+            setStats({
+              totalOrders: s.totalOrders || 0,
+              delivered:   s.delivered || 0,
+              inProgress:  s.inProgress || 0,
+              totalSpent:  s.totalSpent || 0,
+            });
+          }
+        } catch {
+          // Orders summary endpoint not available yet — keep defaults
+        }
       } catch (err) {
         console.error("Failed to load profile", err);
       } finally {
@@ -74,114 +69,6 @@ export default function Profile() {
     }
     fetchData();
   }, [userId, username]);
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  async function handleSaveInfo() {
-    if (!infoForm.name || !infoForm.email) {
-      setInfoError('Please fill in name and email.');
-      return;
-    }
-    setInfoError('');
-    try {
-      const res = await fetch(`http://localhost:8080/api/customers/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: infoForm.name,
-          email: infoForm.email,
-          phoneNumber: infoForm.phone
-        }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setProfile(updated);
-        setInfoSaved(true);
-        setTimeout(() => setInfoSaved(false), 2000);
-      } else {
-        setInfoError('Failed to update profile.');
-      }
-    } catch (err) {
-      setInfoError('Network error while saving profile.');
-    }
-  }
-
-  async function handleChangePassword() {
-    if (!passForm.current || !passForm.newPass || !passForm.confirm) {
-      setPassError('Please fill in all fields.');
-      return;
-    }
-    if (passForm.newPass !== passForm.confirm) {
-      setPassError('New passwords do not match.');
-      return;
-    }
-    if (passForm.newPass.length < 6) {
-      setPassError('Password must be at least 6 characters.');
-      return;
-    }
-    setPassError('');
-    try {
-      const res = await fetch(`http://localhost:8080/api/customers/${userId}/password`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword: passForm.current, newPassword: passForm.newPass }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setPassSaved(true);
-        setPassForm({ current: '', newPass: '', confirm: '' });
-        setTimeout(() => setPassSaved(false), 2000);
-      } else {
-        setPassError(data.message || 'Failed to update password.');
-      }
-    } catch (err) {
-      setPassError('Network error while changing password.');
-    }
-  }
-
-  async function handleSaveAddress() {
-    if (!addrForm.line1 || !addrForm.city || !addrForm.province) {
-      setAddrError('Please fill in Address Line 1, City, and Province.');
-      return;
-    }
-    setAddrError('');
-    try {
-      const res = await fetch(`http://localhost:8080/api/customers/${username}/address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          addressLine1: addrForm.line1,
-          addressLine2: addrForm.line2,
-          city: addrForm.city,
-          district: addrForm.district,
-          province: addrForm.province,
-          postalCode: addrForm.postalCode,
-          phoneNumber: infoForm.phone // Assuming same phone
-        }),
-      });
-      
-      if (res.ok) {
-        // Also update the main customer record just in case
-        await fetch(`http://localhost:8080/api/customers/${userId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              addressLine1: addrForm.line1,
-              addressLine2: addrForm.line2,
-              city: addrForm.city,
-              district: addrForm.district,
-              province: addrForm.province,
-              postalCode: addrForm.postalCode,
-            }),
-        });
-        setAddrSaved(true);
-        setTimeout(() => setAddrSaved(false), 2000);
-      } else {
-          setAddrError('Failed to save address.');
-      }
-    } catch (err) {
-        setAddrError('Network error while saving address.');
-    }
-  }
 
   function formatDate(dateStr) {
     if (!dateStr) return 'Recently';
@@ -197,270 +84,183 @@ export default function Profile() {
       </div>
     );
   }
-  
+
   if (!profile) {
-      return (
-        <div className="pf-loading">
-            <p>Please log in to view your profile.</p>
-        </div>
-      );
+    return (
+      <div className="pf-loading">
+        <p>Please log in to view your profile.</p>
+      </div>
+    );
   }
+
+  // Build a short "location" string from whatever address fields exist
+  const locationText = [profile.city, profile.district, profile.province]
+    .filter(Boolean)
+    .join(', ') || 'Sri Lanka';
+
+  const initials = (profile.name || username || '?')
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
-    <div className="pf-page">
-
-      {/* ── HERO HEADER ── */}
-      <div className="pf-hero">
-        <div className="pf-hero-bg" />
-        <div className="pf-hero-inner">
-          <div className="pf-avatar">
-            {profile.name ? profile.name.charAt(0).toUpperCase() : 'C'}
-          </div>
-          <div className="pf-hero-info">
-            <h1 className="pf-name">{profile.name}</h1>
-            <p className="pf-meta">{profile.email}</p>
-            <p className="pf-meta">Member since {formatDate(profile.createdAt)}</p>
-            <span className="pf-badge">Premium Member</span>
-          </div>
+    <>
+      {/* ── HERO BANNER ── */}
+      <div className="ct-hero">
+        <div className="ct-hero__orb ct-hero__orb--1"></div>
+        <div className="ct-hero__orb ct-hero__orb--2"></div>
+        <div className="ct-hero__inner">
+          <div className="ct-hero__label">YOUR ACCOUNT</div>
+          <h1 className="ct-hero__title">Welcome, {profile.name}</h1>
+          <p className="ct-hero__subtitle">Manage your profile, view orders, and customize your settings.</p>
         </div>
       </div>
 
-      {/* ── STATS ROW ── */}
-      <div className="pf-stats-row">
-        <div className="pf-stat-box">
-          <span className="pf-stat-num">{stats.totalOrders}</span>
-          <span className="pf-stat-label">Total Orders</span>
-        </div>
-        <div className="pf-stat-box">
-          <span className="pf-stat-num green">{stats.delivered}</span>
-          <span className="pf-stat-label">Delivered</span>
-        </div>
-        <div className="pf-stat-box">
-          <span className="pf-stat-num blue">{stats.inProgress}</span>
-          <span className="pf-stat-label">In Progress</span>
-        </div>
-        <div className="pf-stat-box">
-          <span className="pf-stat-num gold">Rs {stats.totalSpent.toLocaleString()}</span>
-          <span className="pf-stat-label">Total Spent</span>
-        </div>
-      </div>
-
-      {/* ── TABS ── */}
-      <div className="pf-tabs">
-        {[
-          { key: 'info',      label: 'Personal Info',     icon: '👤' },
-          { key: 'password',  label: 'Password',          icon: '🔒' },
-          { key: 'addresses', label: 'Address',           icon: '📍' },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            className={`pf-tab ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            <span className="pf-tab-icon">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── TAB CONTENT ── */}
-      <div className="pf-tab-content">
-
-        {/* ─ Personal Info ─ */}
-        {activeTab === 'info' && (
-          <div className="pf-card">
-            <div className="pf-card-header">
-              <h3 className="pf-card-title">Personal Information</h3>
-              <p className="pf-card-desc">Update your name, email and phone number.</p>
-            </div>
-
-            <div className="pf-form-row">
-              <div className="pf-form-group" style={{ flex: '1 1 100%' }}>
-                <label className="pf-label">Full Name</label>
-                <input
-                  className="pf-input"
-                  type="text"
-                  value={infoForm.name}
-                  onChange={(e) => setInfoForm({ ...infoForm, name: e.target.value })}
-                  placeholder="Full name"
-                />
+      <div className="ct-body">
+        {/* ── PROFILE SUMMARY CARD ── */}
+        <div className="pf-summary-card">
+          <div className="pf-summary-left">
+            {profile.profileImageUrl ? (
+              <div className="pf-summary-avatar" style={{ padding: 0, overflow: 'hidden', background: 'transparent' }}>
+                <img src={profile.profileImageUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+              </div>
+            ) : (
+              <div className="pf-summary-avatar">{initials}</div>
+            )}
+            <div className="pf-summary-info">
+              <h1 className="pf-summary-name">{profile.name || 'My Account'}</h1>
+              <p className="pf-summary-handle">@{username || 'user'}</p>
+              <div className="pf-summary-meta-row">
+                <span className="pf-summary-meta-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z" />
+                    <circle cx="12" cy="9" r="2.5" />
+                  </svg>
+                  {locationText}
+                </span>
+                <span className="pf-summary-meta-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  Joined in {formatDate(profile.createdAt)}
+                </span>
               </div>
             </div>
-
-            <div className="pf-form-group">
-              <label className="pf-label">Email Address</label>
-              <input
-                className="pf-input"
-                type="email"
-                value={infoForm.email}
-                onChange={(e) => setInfoForm({ ...infoForm, email: e.target.value })}
-                placeholder="your@email.com"
-              />
-            </div>
-
-            <div className="pf-form-group">
-              <label className="pf-label">Phone Number</label>
-              <input
-                className="pf-input"
-                type="tel"
-                value={infoForm.phone}
-                onChange={(e) => setInfoForm({ ...infoForm, phone: e.target.value })}
-                placeholder="077 000 0000"
-              />
-            </div>
-
-            {infoError && <p className="pf-error">{infoError}</p>}
-
-            <button
-              className={`pf-btn-primary ${infoSaved ? 'saved' : ''}`}
-              onClick={handleSaveInfo}
-            >
-              {infoSaved ? '✓ Saved!' : 'Save Changes'}
-            </button>
           </div>
-        )}
+          <button className="pf-summary-edit" onClick={() => goToSettings('info')}>Edit</button>
+        </div>
 
-        {/* ─ Change Password ─ */}
-        {activeTab === 'password' && (
-          <div className="pf-card">
-            <div className="pf-card-header">
-              <h3 className="pf-card-title">Change Password</h3>
-              <p className="pf-card-desc">Choose a strong password with at least 6 characters.</p>
+        {/* ── DETAIL CARDS ── */}
+        <div className="pf-details-grid">
+
+          {/* Contact Information */}
+          <div className="pf-detail-card">
+            <div className="pf-detail-card-head">
+              <h3 className="pf-detail-card-title">Contact Information</h3>
+              <button className="pf-detail-manage" onClick={() => goToSettings('info')}>Manage</button>
             </div>
-
-            <div className="pf-form-group">
-              <label className="pf-label">Current Password</label>
-              <input
-                className="pf-input"
-                type="password"
-                value={passForm.current}
-                onChange={(e) => setPassForm({ ...passForm, current: e.target.value })}
-                placeholder="Enter current password"
-              />
+            <div className="pf-detail-row">
+              <svg className="pf-detail-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+              <div>
+                <span className="pf-detail-label">Email</span>
+                <span className="pf-detail-value">{profile.email || '—'}</span>
+              </div>
             </div>
-
-            <div className="pf-form-group">
-              <label className="pf-label">New Password</label>
-              <input
-                className="pf-input"
-                type="password"
-                value={passForm.newPass}
-                onChange={(e) => setPassForm({ ...passForm, newPass: e.target.value })}
-                placeholder="Enter new password"
-              />
+            <div className="pf-detail-row">
+              <svg className="pf-detail-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <div>
+                <span className="pf-detail-label">Phone</span>
+                <span className="pf-detail-value">{profile.phoneNumber || '—'}</span>
+              </div>
             </div>
-
-            <div className="pf-form-group">
-              <label className="pf-label">Confirm New Password</label>
-              <input
-                className="pf-input"
-                type="password"
-                value={passForm.confirm}
-                onChange={(e) => setPassForm({ ...passForm, confirm: e.target.value })}
-                placeholder="Confirm new password"
-              />
-            </div>
-
-            {passError && <p className="pf-error">{passError}</p>}
-
-            <button
-              className={`pf-btn-primary ${passSaved ? 'saved' : ''}`}
-              onClick={handleChangePassword}
-            >
-              {passSaved ? '✓ Password Updated!' : 'Update Password'}
-            </button>
           </div>
-        )}
 
-        {/* ─ Delivery Addresses ─ */}
-        {activeTab === 'addresses' && (
-            <div className="pf-card">
-                <div className="pf-card-header">
-                  <h3 className="pf-card-title">Delivery Address</h3>
-                  <p className="pf-card-desc">Update your default delivery address.</p>
-                </div>
-
-                <div className="pf-form-row">
-                  <div className="pf-form-group">
-                    <label className="pf-label">Street / Line 1</label>
-                    <input
-                      className="pf-input"
-                      type="text"
-                      value={addrForm.line1}
-                      onChange={(e) => setAddrForm({ ...addrForm, line1: e.target.value })}
-                      placeholder="42 Galle Road"
-                    />
-                  </div>
-                  <div className="pf-form-group">
-                    <label className="pf-label">Line 2 (Optional)</label>
-                    <input
-                      className="pf-input"
-                      type="text"
-                      value={addrForm.line2}
-                      onChange={(e) => setAddrForm({ ...addrForm, line2: e.target.value })}
-                      placeholder="Apartment, suite, etc."
-                    />
-                  </div>
-                </div>
-
-                <div className="pf-form-row">
-                  <div className="pf-form-group">
-                    <label className="pf-label">City</label>
-                    <input
-                      className="pf-input"
-                      type="text"
-                      value={addrForm.city}
-                      onChange={(e) => setAddrForm({ ...addrForm, city: e.target.value })}
-                      placeholder="Colombo 03"
-                    />
-                  </div>
-                  <div className="pf-form-group">
-                    <label className="pf-label">Province</label>
-                    <input
-                      className="pf-input"
-                      type="text"
-                      value={addrForm.province}
-                      onChange={(e) => setAddrForm({ ...addrForm, province: e.target.value })}
-                      placeholder="Western Province"
-                    />
-                  </div>
-                </div>
-
-                <div className="pf-form-row">
-                  <div className="pf-form-group">
-                    <label className="pf-label">District</label>
-                    <input
-                      className="pf-input"
-                      type="text"
-                      value={addrForm.district}
-                      onChange={(e) => setAddrForm({ ...addrForm, district: e.target.value })}
-                      placeholder="Colombo"
-                    />
-                  </div>
-                  <div className="pf-form-group">
-                    <label className="pf-label">Postal Code</label>
-                    <input
-                      className="pf-input"
-                      type="text"
-                      value={addrForm.postalCode}
-                      onChange={(e) => setAddrForm({ ...addrForm, postalCode: e.target.value })}
-                      placeholder="00300"
-                    />
-                  </div>
-                </div>
-
-                {addrError && <p className="pf-error">{addrError}</p>}
-
-                <div className="pf-form-row" style={{ marginTop: '8px' }}>
-                  <button className={`pf-btn-primary ${addrSaved ? 'saved' : ''}`} onClick={handleSaveAddress}>
-                    {addrSaved ? '✓ Saved!' : 'Save Address'}
-                  </button>
-                </div>
+          {/* Address Details */}
+          <div className="pf-detail-card">
+            <div className="pf-detail-card-head">
+              <h3 className="pf-detail-card-title">Address Details</h3>
+              <button className="pf-detail-manage" onClick={() => goToSettings('addresses')}>Manage</button>
             </div>
-        )}
+            {profile.addressLine1 ? (
+              <>
+                <p className="pf-address-text">
+                  {profile.addressLine1}
+                  {profile.addressLine2 ? `, ${profile.addressLine2}` : ''}
+                </p>
+                <p className="pf-address-text muted">
+                  {[profile.city, profile.district, profile.province].filter(Boolean).join(', ')}
+                  {profile.postalCode ? ` ${profile.postalCode}` : ''}
+                </p>
+              </>
+            ) : (
+              <p className="pf-detail-empty">No delivery address saved yet.</p>
+            )}
+          </div>
 
+          {/* Order Overview */}
+          <div className="pf-detail-card">
+            <div className="pf-detail-card-head">
+              <h3 className="pf-detail-card-title">Order Overview</h3>
+              <button className="pf-detail-manage" onClick={() => navigate('/customer/orders')}>View All</button>
+            </div>
+            <div className="pf-mini-stats-grid">
+              <div className="pf-mini-stat">
+                <span className="pf-mini-stat-num">{stats.totalOrders}</span>
+                <span className="pf-mini-stat-label">Total Orders</span>
+              </div>
+              <div className="pf-mini-stat">
+                <span className="pf-mini-stat-num green">{stats.delivered}</span>
+                <span className="pf-mini-stat-label">Delivered</span>
+              </div>
+              <div className="pf-mini-stat">
+                <span className="pf-mini-stat-num blue">{stats.inProgress}</span>
+                <span className="pf-mini-stat-label">In Progress</span>
+              </div>
+              <div className="pf-mini-stat">
+                <span className="pf-mini-stat-num gold">Rs {stats.totalSpent.toLocaleString()}</span>
+                <span className="pf-mini-stat-label">Total Spent</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Activity / Security */}
+          <div className="pf-detail-card">
+            <div className="pf-detail-card-head">
+              <h3 className="pf-detail-card-title">Account Activity</h3>
+              <button className="pf-detail-manage" onClick={() => goToSettings('password')}>Security</button>
+            </div>
+            <div className="pf-detail-row">
+              <svg className="pf-detail-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+              <div>
+                <span className="pf-detail-label">Member Since</span>
+                <span className="pf-detail-value">{formatDate(profile.createdAt)}</span>
+              </div>
+            </div>
+            <div className="pf-detail-row">
+              <svg className="pf-detail-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <div>
+                <span className="pf-detail-label">Account Status</span>
+                <span className="pf-detail-value pf-status-active">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

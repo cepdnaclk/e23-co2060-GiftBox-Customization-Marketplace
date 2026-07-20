@@ -237,7 +237,9 @@ const Settings = () => {
   // Fetch admin info on mount
   useEffect(() => {
     if (USER_ID) {
-      fetch(`${API_BASE}/users/${USER_ID}`)
+      fetch(`${API_BASE}/users/${USER_ID}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to load user info");
           return res.json();
@@ -273,9 +275,12 @@ const Settings = () => {
     if (!USER_ID) return;
 
     fetch(`${API_BASE}/users/${USER_ID}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(profile),
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      body: JSON.stringify(profile)
     })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to save changes");
@@ -297,8 +302,11 @@ const Settings = () => {
     }
 
     fetch(`${API_BASE}/users/${USER_ID}/password`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
       body: JSON.stringify({ currentPassword, newPassword }),
     })
       .then((res) => {

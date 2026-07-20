@@ -354,14 +354,25 @@
 }
 
 /* ── Empty state ─────────────────────────────────────────────────────────── */
+.cc-empty-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
 .cc-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 200px);
   text-align: center;
   padding: 40px 20px;
+  background: var(--cc-navy-card);
+  border: 1px solid var(--cc-border);
+  border-radius: var(--cc-radius);
+  max-width: 500px;
+  width: 100%;
 }
 
 .cc-empty__icon { font-size: 64px; margin-bottom: 20px; }

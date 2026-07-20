@@ -60,4 +60,27 @@ public class CategoryController {
                 });
         return result;
     }
+
+    /**
+     * Creates a new root category.
+     */
+    @PostMapping
+    @Transactional
+    public ResponseEntity<?> createCategory(@RequestBody Map<String, String> payload) {
+        try {
+            String name = payload.get("name");
+            if (name == null || name.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Category name is required"));
+            }
+            Category cat = new Category();
+            cat.setName(name);
+            Category saved = categoryRepository.save(cat);
+            return ResponseEntity.ok(Map.of("id", saved.getId(), "name", saved.getName()));
+        } catch (Exception e) {
+            Map<String, String> err = new LinkedHashMap<>();
+            err.put("error", e.getClass().getSimpleName());
+            err.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(err);
+        }
+    }
 }

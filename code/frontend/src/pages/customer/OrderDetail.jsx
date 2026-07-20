@@ -185,11 +185,28 @@ export default function OrderDetail() {
   return (
     <div className="od-page">
 
+      {/* ── Hero Banner ── */}
+      <div className="ct-hero">
+        <div className="ct-hero__orb ct-hero__orb--1" />
+        <div className="ct-hero__orb ct-hero__orb--2" />
+        <div className="ct-hero__inner">
+          <div className="ct-hero__label">Order Details</div>
+          <h1 className="ct-hero__title">
+            {loading ? 'Loading…' : order ? order.id : 'Order Not Found'}
+          </h1>
+          <p className="ct-hero__sub">
+            {!loading && order ? `Placed on ${formatDate(order.date)}` : ''}
+          </p>
+        </div>
+      </div>
+
+      <div className="ct-body">
+
       {/* ── Back Button ── */}
       {/* Takes customer back to the Orders list page */}
       <button
         className="od-back-btn"
-        onClick={() => navigate('/orders')}
+        onClick={() => navigate('/customer/orders')}
       >
         ← Back to Orders
       </button>
@@ -402,6 +419,7 @@ export default function OrderDetail() {
           </div>{/* end od-grid */}
         </div>
       )}
+      </div>{/* end ct-body */}
     </div>
   );
 }

@@ -4,7 +4,7 @@
    your teammates' CSS files. */
 
 /* ── Google Fonts import ─────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 /* ── CSS Variables (Giftora colour tokens) ───────────────────────────────── */
 :root {
@@ -21,14 +21,82 @@
   --gc-radius-sm:   8px;
 }
 
-/* ── Page wrapper ────────────────────────────────────────────────────────── */
-/* This is the outermost div — full width, dark background */
+/* ── Page Shell ── */
 .gc-page {
   min-height: 100vh;
-  background: var(--gc-bg);
+  background: #F9F8F6;
   color: var(--gc-text);
   font-family: 'DM Sans', sans-serif;
-  padding: 2rem 1.5rem 4rem;
+  padding: 0;
+}
+
+.gc-hero {
+  background: linear-gradient(135deg, #1A1A2E 0%, #16213E 60%, #0d1b35 100%);
+  padding: 30px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gc-hero__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.gc-hero__orb--1 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(201,169,97,0.2), transparent 70%);
+  top: -100px; right: 10%;
+}
+
+.gc-hero__orb--2 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(93,173,226,0.15), transparent 70%);
+  bottom: -80px; left: 5%;
+}
+
+.gc-hero__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.gc-hero__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #C9A961;
+  margin-bottom: 10px;
+}
+
+.gc-hero__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 44px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 8px;
+  line-height: 1.15;
+}
+
+.gc-hero__title em {
+  font-style: italic;
+  color: #C9A961;
+}
+
+.gc-hero__sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+
+/* ── Body Content Area ── */
+.gc-body {
+  padding: 36px 48px 80px;
+  max-width: 1248px;
+  margin: 0 auto;
 }
 
 /* ── Page Header ─────────────────────────────────────────────────────────── */
@@ -77,13 +145,12 @@
 
 /* ── Main Layout ─────────────────────────────────────────────────────────── */
 /* Two columns: steps on the left, summary on the right.
-   On mobile (<768px) they stack vertically (see media query at bottom). */
+   On mobile (<768px) they stack vertically (see media query at bottom).
+   max-width and centering are now handled by .gc-body above. */
 .gc-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 1.5rem;
-  max-width: 1100px;
-  margin: 0 auto;
 }
 
 /* ── Steps Panel (left column) ───────────────────────────────────────────── */
@@ -95,8 +162,8 @@
 
 /* Each step is a collapsible card */
 .gc-step {
-  background: var(--gc-surface);
-  border: 1px solid var(--gc-border);
+  background: #FFFFFF;
+  border: 1px solid rgba(201,169,97,0.15);
   border-radius: var(--gc-radius);
   overflow: hidden;
   transition: border-color 0.2s;
@@ -116,14 +183,14 @@
   padding: 1rem 1.25rem;
   background: transparent;
   border: none;
-  color: var(--gc-text);
+  color: #1F2937;
   cursor: pointer;
   text-align: left;
   font-family: 'DM Sans', sans-serif;
 }
 
 .gc-step-header:hover {
-  background: var(--gc-surface2);
+  background: #F0EDE8;
 }
 
 /* Circular step number badge */
@@ -131,8 +198,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--gc-gold);
-  color: #12122A;
+  background: linear-gradient(135deg, #C9A961, #D4AF37);
+  color: #FFFFFF;
   font-size: 13px;
   font-weight: 500;
   display: flex;
@@ -175,8 +242,8 @@
 }
 
 .gc-size-card {
-  background: var(--gc-surface2);
-  border: 1px solid var(--gc-border);
+  background: #F9F8F6;
+  border: 1px solid rgba(0,0,0,0.08);
   border-radius: var(--gc-radius-sm);
   padding: 14px 12px;
   cursor: pointer;
@@ -186,12 +253,12 @@
   gap: 4px;
   transition: all 0.15s;
   font-family: 'DM Sans', sans-serif;
-  color: var(--gc-text);
+  color: #1F2937;
 }
 
 .gc-size-card:hover {
-  border-color: var(--gc-gold);
-  background: rgba(212, 168, 67, 0.06);
+  border-color: rgba(201,169,97,0.4);
+  background: rgba(201,169,97,0.04);
 }
 
 /* Selected size card — gold border + subtle glow */
@@ -238,7 +305,7 @@
 
 .gc-color-label {
   font-size: 13px;
-  color: var(--gc-text-muted);
+  color: #6B7280;
 }
 
 .gc-color-label strong {
@@ -275,7 +342,7 @@
 
 .gc-hint {
   font-size: 13px;
-  color: var(--gc-text-muted);
+  color: #6B7280;
   margin-bottom: 1rem;
 }
 
@@ -287,8 +354,8 @@
 }
 
 .gc-item-card {
-  background: var(--gc-surface2);
-  border: 1px solid var(--gc-border);
+  background: #F9F8F6;
+  border: 1px solid rgba(0,0,0,0.08);
   border-radius: var(--gc-radius-sm);
   padding: 12px 8px;
   text-align: center;
@@ -384,10 +451,10 @@
 /* ── Step 4: Message Textarea ─────────────────────────────────────────────── */
 .gc-message-input {
   width: 100%;
-  background: var(--gc-surface2);
-  border: 1px solid var(--gc-border);
+  background: #FFFFFF;
+  border: 1.5px solid rgba(0,0,0,0.1);
   border-radius: var(--gc-radius-sm);
-  color: var(--gc-text);
+  color: #1F2937;
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   padding: 12px;
@@ -398,7 +465,7 @@
 }
 
 .gc-message-input:focus {
-  border-color: rgba(212, 168, 67, 0.5);
+  border-color: #C9A961;
 }
 
 .gc-message-input::placeholder {
@@ -414,8 +481,8 @@
 
 /* ── Right Panel: Order Summary ───────────────────────────────────────────── */
 .gc-summary {
-  background: var(--gc-surface);
-  border: 1px solid var(--gc-border);
+  background: #FFFFFF;
+  border: 1px solid rgba(201,169,97,0.15);
   border-radius: var(--gc-radius);
   padding: 1.25rem;
   height: fit-content;
@@ -426,14 +493,14 @@
 .gc-summary-title {
   font-size: 15px;
   font-weight: 500;
-  color: var(--gc-text);
+  color: #1F2937;
   margin-bottom: 1rem;
 }
 
 /* Box preview area */
 .gc-preview {
-  background: var(--gc-surface2);
-  border: 1px solid var(--gc-border);
+  background: #F0EDE8;
+  border: 1px solid rgba(201,169,97,0.15);
   border-radius: var(--gc-radius-sm);
   padding: 1.25rem;
   text-align: center;
@@ -464,11 +531,11 @@
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  color: var(--gc-text-muted);
+  color: #6B7280;
 }
 
 .gc-summary-row span:last-child {
-  color: var(--gc-text);
+  color: #1F2937;
   font-weight: 500;
   text-align: right;
   max-width: 160px;
@@ -485,7 +552,7 @@
 
 .gc-summary-divider {
   border: none;
-  border-top: 1px solid var(--gc-border);
+  border-top: 1px solid rgba(201,169,97,0.12);
   margin: 0.75rem 0;
 }
 
@@ -495,7 +562,7 @@
   justify-content: space-between;
   font-size: 16px;
   font-weight: 500;
-  color: var(--gc-text);
+  color: #C9A961;
   margin-bottom: 1rem;
 }
 
@@ -520,8 +587,8 @@
 
 /* Disabled state — grey out button */
 .gc-cart-btn:disabled {
-  background: var(--gc-surface2);
-  color: var(--gc-text-muted);
+  background: #E5E7EB;
+  color: #9CA3AF;
   cursor: not-allowed;
 }
 
@@ -534,7 +601,7 @@
 
 .gc-cart-hint {
   font-size: 12px;
-  color: var(--gc-text-muted);
+  color: #9CA3AF;
   text-align: center;
   margin-top: 8px;
 }
@@ -542,6 +609,10 @@
 /* ── Responsive: Mobile ───────────────────────────────────────────────────── */
 /* On small screens, stack summary below the steps */
 @media (max-width: 768px) {
+  .gc-hero { padding: 48px 20px 36px; }
+  .gc-hero__title { font-size: 32px; }
+  .gc-body { padding: 24px 16px 60px; }
+
   .gc-layout {
     grid-template-columns: 1fr;
   }
@@ -558,74 +629,3 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* Toolbar Styles */
-.home-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto 40px;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.home-search-bar {
-  position: relative;
-  flex: 1;
-  min-width: 300px;
-}
-
-.home-search-bar input {
-  width: 100%;
-  padding: 12px 45px;
-  border-radius: 50px;
-  border: 1px solid rgba(201, 169, 97, 0.2);
-  background: white;
-  font-family: inherit;
-}
-
-.search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--gold); }
-.clear-search { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--muted); }
-
-.home-filters { display: flex; gap: 12px; }
-.home-filters select {
-  padding: 10px 20px;
-  border-radius: 50px;
-  border: 1px solid rgba(26, 26, 46, 0.1);
-  background: white;
-  font-weight: 600;
-  color: var(--navy);
-  cursor: pointer;
-}
-
-/* Card Overlays */
-.featured-image { position: relative; overflow: hidden; }
-.card-overlay {
-  position: absolute; inset: 0;
-  background: rgba(26, 26, 46, 0.6);
-  display: flex; flex-direction: column;
-  justify-content: center; align-items: center;
-  gap: 10px; opacity: 0; transition: 0.3s;
-}
-.featured-card:hover .card-overlay { opacity: 1; }
-
-.overlay-btn {
-  padding: 10px 20px; border-radius: 50px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s;
-}
-.overlay-btn.primary { background: var(--gold); color: white; }
-.overlay-btn.ghost { background: white; color: var(--navy); }
-
-/* Quick View Modal Styles */
-.qv-backdrop {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-  z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.qv-modal {
-  background: white; border-radius: 20px; max-width: 800px; width: 100%;
-  position: relative; overflow: hidden;
-}
-.qv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.qv-img { width: 100%; height: 100%; object-fit: cover; }
-.qv-details { padding: 40px; }
-.qv-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; cursor: pointer; }

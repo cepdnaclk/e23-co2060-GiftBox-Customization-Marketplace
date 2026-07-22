@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaFolder } from 'react-icons/fa';
+import { FaPlus, FaFolder, FaTrash } from 'react-icons/fa';
 import './AdminCategories.css';
 
 const AdminCategories = () => {
@@ -55,6 +55,29 @@ const AdminCategories = () => {
     }
   };
 
+  const handleDeleteCategory = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete the category "${name}"?`)) return;
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/categories/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+
+      if (res.ok) {
+        fetchCategories(); // Refresh list
+      } else {
+        const errData = await res.json();
+        alert(`Failed to delete category: ${errData.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error("Error deleting category:", err);
+      alert('Network error while deleting category.');
+    }
+  };
+
   return (
     <div className="categories-container">
       <div className="categories-header">
@@ -84,6 +107,13 @@ const AdminCategories = () => {
         <div className="categories-grid">
           {categories.map(cat => (
             <div key={cat.id} className="category-card">
+              <button 
+                className="delete-category-btn" 
+                onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                title="Delete Category"
+              >
+                <FaTrash size={14} />
+              </button>
               <FaFolder size={20} style={{ color: '#c9a961', marginBottom: '10px' }} />
               <div>{cat.name}</div>
             </div>

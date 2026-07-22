@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css'; 
-import App from './App.js'; // The root component that contains your Sidebar and Routes
+import App from './App.js'; // The root component that contains Sidebar and Routes
 
 /**
  * Root Initialization
- * This file finds the <div id="root"> inside your index.html 
+ * This file finds the <div id="root"> inside index.html 
  * and injects the React application into it.
  */
 const root = ReactDOM.createRoot(document.getElementById('root'));

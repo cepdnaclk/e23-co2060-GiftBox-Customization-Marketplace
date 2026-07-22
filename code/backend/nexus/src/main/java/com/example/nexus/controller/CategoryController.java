@@ -83,4 +83,24 @@ public class CategoryController {
             return ResponseEntity.status(500).body(err);
         }
     }
+
+    /**
+     * Deletes a category by ID.
+     */
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteCategory(@PathVariable Integer id) {
+        try {
+            if (!categoryRepository.existsById(id)) {
+                return ResponseEntity.status(404).body(Map.of("error", "Category not found"));
+            }
+            categoryRepository.deleteById(id);
+            return ResponseEntity.ok(Map.of("message", "Category deleted successfully"));
+        } catch (Exception e) {
+            Map<String, String> err = new LinkedHashMap<>();
+            err.put("error", e.getClass().getSimpleName());
+            err.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(err);
+        }
+    }
 }

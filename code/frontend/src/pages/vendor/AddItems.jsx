@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaArrowLeft, FaPlus, FaUpload, FaBoxOpen, FaDollarSign, FaImage, FaCheck } from 'react-icons/fa';
+import { apiCall } from '../../utils/api'; // අපේ API utility එක මෙතනට import කර ඇත
 import './AddItems.css';
-
-// Category icons mapping removed as requested
 
 // ── Reusable field components ──────────────────────────────────
 const Label = ({ children, required }) => (
@@ -66,7 +65,6 @@ const CustomSelect = ({ options, value, onChange, placeholder }) => {
   );
 };
 
-// ── 2-Step Category Picker Removed in favor of simple select ──
 // ── Main Component ─────────────────────────────────────────────
 const AddItems = () => {
   const navigate = useNavigate();
@@ -76,12 +74,19 @@ const AddItems = () => {
   const [categoriesTree, setCategoriesTree] = useState([]);
 
   useEffect(() => {
-    const apiBase = process.env.REACT_APP_API_URL || 'https://nexus-backend-axbdfzd2g4c0fwbf.austriaeast-01.azurewebsites.net';
-    axios.get(`${apiBase}/api/categories`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-    })
-      .then(res => setCategoriesTree(res.data))
-      .catch(err => console.error("Error fetching categories:", err));
+    // URL/CORS ගැටලු මඟහරවා ගැනීමට අපගේ apiCall භාවිතා කර ඇත
+    const fetchCategories = async () => {
+      try {
+        const res = await apiCall('/categories');
+        if (res.ok) {
+          const data = await res.json();
+          setCategoriesTree(data);
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+    fetchCategories();
   }, []);
 
   const [form, setForm] = useState({
@@ -123,6 +128,7 @@ const AddItems = () => {
     try {
       let uploadedImageUrl = '';
 
+      // පින්තූර Cloudinary වෙත යැවීම සඳහා (මෙය external API එකක් නිසා axios එලෙසම තබා ඇත)
       if (images.length > 0) {
         const formData = new FormData();
         formData.append('file', images[0].file);
@@ -150,14 +156,22 @@ const AddItems = () => {
       };
 
       const SELLER_ID = localStorage.getItem('userId');
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/vendors/${SELLER_ID}/products`, payload, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      
+      // දත්ත Backend එකට යැවීම සඳහා apiCall භාවිතා කිරීම
+      const response = await apiCall(`/vendors/${SELLER_ID}/products`, {
+        method: 'POST',
+        body: JSON.stringify(payload)
       });
 
-      setTimeout(() => {
+      if (response.ok) {
+        setTimeout(() => {
+          setSubmitted(false);
+          navigate('/vendor/my-items');
+        }, 1000);
+      } else {
+        alert('Failed to save the item. Please check your backend connection.');
         setSubmitted(false);
-        navigate('/vendor/my-items');
-      }, 1000);
+      }
 
     } catch (error) {
       console.error('Error saving item:', error);

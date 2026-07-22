@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import com.example.nexus.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,6 +29,9 @@ public class OrderController {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // 1. Vendor-specific orders retrieval (sorted by created_at desc)
     @GetMapping("/vendors/{vendorId}/orders")
@@ -129,6 +133,9 @@ public class OrderController {
             if (request.getCustomerId() == null) {
                 return ResponseEntity.badRequest().body("Validation Error: customerId is required.");
             }
+            if (!userRepository.existsById(request.getCustomerId())) {
+                return ResponseEntity.badRequest().body("Validation Error: customer with ID " + request.getCustomerId() + " does not exist.");
+            }
             if (request.getDeliveryAddress() == null || request.getDeliveryAddress().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Validation Error: deliveryAddress is required.");
             }
@@ -176,7 +183,7 @@ public class OrderController {
             order.setOrderType("CUSTOM_BOX");
             order.setTotalAmount(totalAmount);
 
-            Order savedOrder = orderRepository.save(order);
+            Order savedOrder = orderRepository.saveAndFlush(order);
 
             // Save OrderItems and update product stock
             for (CreateOrderRequest.OrderItemRequest itemReq : request.getItems()) {
@@ -194,7 +201,7 @@ public class OrderController {
                 orderItem.setQuantity(itemReq.getQuantity());
                 orderItem.setUnitPrice(product.getPrice());
                 
-                orderItemRepository.save(orderItem);
+                orderItemRepository.saveAndFlush(orderItem);
             }
             
             // Build a safe response map to prevent Jackson serialization issues
@@ -222,6 +229,9 @@ public class OrderController {
             // Validate request
             if (request.getCustomerId() == null) {
                 return ResponseEntity.badRequest().body("Validation Error: customerId is required.");
+            }
+            if (!userRepository.existsById(request.getCustomerId())) {
+                return ResponseEntity.badRequest().body("Validation Error: customer with ID " + request.getCustomerId() + " does not exist.");
             }
             if (request.getDeliveryAddress() == null || request.getDeliveryAddress().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Validation Error: deliveryAddress is required.");
@@ -266,7 +276,7 @@ public class OrderController {
                 order.setOrderType("STANDARD");
                 order.setTotalAmount(totalAmount);
 
-                Order savedOrder = orderRepository.save(order);
+                Order savedOrder = orderRepository.saveAndFlush(order);
 
                 for (CreateOrderRequest.OrderItemRequest itemReq : vendorItems) {
                     Product product = productRepository.findById(itemReq.getProductId()).get();
@@ -283,7 +293,7 @@ public class OrderController {
                     orderItem.setQuantity(itemReq.getQuantity());
                     orderItem.setUnitPrice(product.getPrice());
                     
-                    orderItemRepository.save(orderItem);
+                    orderItemRepository.saveAndFlush(orderItem);
                 }
                 
                 // Build a safe response map to prevent Jackson serialization issues

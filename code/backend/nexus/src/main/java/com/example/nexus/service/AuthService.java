@@ -2,6 +2,7 @@ package com.example.nexus.service;
 
 import com.example.nexus.dto.*;
 import com.example.nexus.model.Role;
+import com.example.nexus.model.Customer;
 import com.example.nexus.model.User;
 import com.example.nexus.repository.UserRepository;
 import com.example.nexus.model.Vendor;
@@ -47,7 +48,7 @@ public class AuthService {
         String code = String.format("%06d", new Random().nextInt(999999));
 
         // Build user — not verified yet
-        User user = new User();
+        Customer user = new Customer();
         user.setName(request.getName());
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());

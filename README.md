@@ -65,12 +65,13 @@ Giftora introduces a **centralized assembly workflow**:
 ## ✨ Key Features
 
 - **Multi-Vendor Gift Box Builder** — select items from different vendors into one box
-- **Role-Based Access Control** — separate portals for Customers, Vendors, and Admins
+- **Role-Based Access Control** — 4 distinct user portals for Customers, Vendors, Assemblers, and Admins
 - **Order Splitting Engine** — one checkout auto-splits into per-vendor sub-orders
-- **Centralized Assembly Workflow** — quality inspection and professional packaging
+- **Centralized Assembly Workflow** — quality inspection, item verification, and professional packaging
+- **Assembler Module & Dashboard** — specialized workflow to process incoming vendor packages and mark QA readiness
 - **Milestone-Based Order Tracking** — 5+ trackable stages with real-time updates
-- **Vendor Portal** — product listing, inventory management, and order queue
-- **Admin Dashboard** — vendor approval, operational monitoring, and reporting
+- **Vendor Portal** — product listing, inventory management, Cloudinary image hosting, and order queue
+- **Admin Dashboard** — vendor approval, operational monitoring, staff management, and reporting
 
 ---
 
@@ -114,93 +115,85 @@ e23-co2060-GiftBox-Customization-Marketplace/
 │   │       │   │   │   ├── config/
 │   │       │   │   │   │   └── SecurityConfig.java
 │   │       │   │   │   ├── controller/
+│   │       │   │   │   │   ├── AdminDashboardController.java
+│   │       │   │   │   │   ├── AssemblerController.java
 │   │       │   │   │   │   ├── AuthController.java
 │   │       │   │   │   │   ├── CartController.java
+│   │       │   │   │   │   ├── CategoryController.java
 │   │       │   │   │   │   ├── OrderController.java
-│   │       │   │   │   │   ├── PartnerController.java
 │   │       │   │   │   │   ├── ProductController.java
-│   │       │   │   │   │   ├── SellerDashboardController.java
-│   │       │   │   │   │   └── UserController.java
-│   │       │   │   │   ├── dto/
+│   │       │   │   │   │   ├── UserController.java
+│   │       │   │   │   │   ├── VendorController.java
+│   │       │   │   │   │   └── VendorDashboardController.java
 │   │       │   │   │   ├── model/
-│   │       │   │   │   │   ├── CartItem.java
+│   │       │   │   │   │   ├── Assembler.java
+│   │       │   │   │   │   ├── Customer.java
 │   │       │   │   │   │   ├── Order.java
-│   │       │   │   │   │   ├── Partner.java
 │   │       │   │   │   │   ├── Product.java
 │   │       │   │   │   │   ├── Role.java
-│   │       │   │   │   │   ├── SessionCartManager.java
-│   │       │   │   │   │   └── User.java
+│   │       │   │   │   │   ├── User.java
+│   │       │   │   │   │   └── Vendor.java
 │   │       │   │   │   ├── repository/
+│   │       │   │   │   │   ├── AssemblerRepository.java
 │   │       │   │   │   │   ├── OrderRepository.java
-│   │       │   │   │   │   ├── PartnerRepository.java
 │   │       │   │   │   │   ├── ProductRepository.java
-│   │       │   │   │   │   └── UserRepository.java
-│   │       │   │   │   ├── service/
+│   │       │   │   │   │   ├── UserRepository.java
+│   │       │   │   │   │   └── VendorRepository.java
 │   │       │   │   │   └── NexusApplication.java
 │   │       │   │   └── resources/
 │   │       │   │       ├── application.properties
-│   │       │   │       ├── application-arch.properties
-│   │       │   │       └── application-windows.properties
-│   │       │   └── test/
+│   │       │   │       └── db/migration/ (V1__initial_schema.sql ... V20)
 │   │       └── pom.xml
-│   ├── database/
-│   │   ├── data.sql
-│   │   ├── items.sql
-│   │   ├── schema.sql
-│   │   └── triggers.sql
 │   └── frontend/
 │       ├── public/
-│       │   ├── index.html
-│       │   └── logo.jpeg
 │       └── src/
-│           ├── assets/
-│           │   └── login/
 │           ├── components/
 │           │   ├── admin/
-│           │   ├── homepage/
-│           │   │   ├── CartBadge.jsx
-│           │   │   ├── Footer.jsx
-│           │   │   └── Header.jsx
-│           │   ├── seller/
-│           │   └── user/
-│           ├── context/
+│           │   ├── assembler/
+│           │   │   ├── AssemblerSidebar.css
+│           │   │   └── AssemblerSidebar.jsx
+│           │   ├── customer/
+│           │   ├── landingpage/
+│           │   └── vendor/
 │           ├── layouts/
 │           │   ├── AdminLayout.jsx
+│           │   ├── AssemblerLayout.jsx
 │           │   ├── CustomerLayout.jsx
-│           │   └── SellerLayout.jsx
+│           │   └── VendorLayout.jsx
 │           └── pages/
 │               ├── admin/
+│               │   ├── AdminCategories.jsx
 │               │   ├── Customers.jsx
 │               │   ├── Dashboard.jsx
-│               │   ├── Partners.jsx
-│               │   ├── PendingPartners.jsx
+│               │   ├── PendingVendors.jsx
 │               │   ├── Settings.jsx
-│               │   └── StaffManagement.jsx
+│               │   ├── StaffManagement.jsx
+│               │   └── Vendors.jsx
+│               ├── assembler/
+│               │   ├── Dashboard.css
+│               │   └── Dashboard.jsx
 │               ├── auth/
 │               │   ├── Login.jsx
 │               │   └── VendorRegistration.jsx
-│               ├── homepage/
+│               ├── box_build/
+│               │   └── BoxBuilderPage.jsx
+│               ├── customer/
+│               │   ├── GiftCustomizer.jsx
+│               │   ├── OrderDetail.jsx
+│               │   ├── Orders.jsx
+│               │   └── Profile.jsx
+│               ├── landingpage/
 │               │   ├── AboutUsPage.jsx
-│               │   ├── CartPage.jsx
-│               │   ├── HomePage.jsx
-│               │   ├── HowItWorksPage.jsx
-│               │   ├── Products.jsx
-│               │   ├── ProductsPage.jsx
-│               │   └── VendorLanding.jsx
-│               ├── seller/
-│               │   ├── AddItems.jsx
-│               │   ├── MyItems.jsx
-│               │   ├── SellerDashboard.jsx
-│               │   └── Settings.jsx
-│               └── user/
-│                   ├── CustomerHome.jsx
-│                   ├── GiftCustomizer.jsx
-│                   ├── OrderDetail.jsx
+│               │   ├── LandingPage.jsx
+│               │   └── ProductsPage.jsx
+│               └── vendor/
+│                   ├── AddItems.jsx
+│                   ├── MyItems.jsx
 │                   ├── Orders.jsx
-│                   ├── Profile.jsx
-│                   └── Verify.jsx
+│                   ├── Settings.jsx
+│                   └── VendorDashboard.jsx
 └── docs/
-    └── data/
+    └── README.md
 
 ---
 
@@ -271,13 +264,21 @@ Configure your MySQL connection in `backend/src/main/resources/application.prope
 | GET | `/api/items` | Get all gift items |
 | GET | `/api/boxes/sizes` | Get available box sizes |
 
-### Seller
+### Seller (Vendor)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/seller/items` | Get seller's listed items |
 | POST | `/api/seller/items` | Add new item |
 | PUT | `/api/seller/items/{id}` | Update item |
 | GET | `/api/seller/orders` | Get seller's orders |
+
+### Assembler
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/assemblers` | Get list of assemblers with completed metrics |
+| POST | `/api/assemblers` | Register new assembler staff account |
+| PUT | `/api/assemblers/{id}/status` | Update assembler active status |
+| PUT | `/api/orders/{id}/status` | Update order assembly status |
 
 ---
 

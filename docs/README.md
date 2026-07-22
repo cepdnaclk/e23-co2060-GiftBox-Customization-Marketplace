@@ -116,24 +116,26 @@ Access is enforced through **Role-Based Access Control (RBAC)** implemented via 
 - **Customer**: Browses products, builds gift boxes, places orders, and tracks order status.
 - **Vendor**: Lists and manages products; views and fulfils incoming sub-orders. Restricted to their own catalogue.
 - **Admin**: Top-level access to approve vendor registrations, monitor system health, and oversee platform operations.
-- **Assembler** *(Future Phase)*: Verifies incoming vendor items at the centralized assembly point, checks quality, and confirms packaging.
+- **Assembler**: Specialized hub role to verify incoming vendor items, perform quality-check (QA), track box packaging, and manage dispatch readiness.
 
 ### Core Modules
-1. **User Management**: Stateless JWT auth, BCrypt hashing, and strict RBAC enforced at API and UI layers.
-2. **Gift Box Customization Engine**: An interactive canvas allowing customers to add cross-vendor items, view real-time totals, and save drafts. Backed by an EAV database schema for flexible attributes.
-3. **Vendor & Item Management**: Vendor portal to manage stock and listings.
-4. **Order Management & Splitting**: Master order record creation instantly splitting into sub-orders for vendors.
-5. **Milestone-Based Tracking**: Customers see a clear timeline: *Order Placed → Vendor Processing → Dispatched to Hub → Quality Inspection → Out for Delivery*.
+1. **User Management**: Stateless JWT auth, BCrypt hashing, and strict RBAC enforced at API and UI layers across 4 roles (Customer, Vendor, Assembler, Admin).
+2. **Gift Box Customization Engine**: An interactive canvas allowing customers to add cross-vendor items, view real-time totals, and save drafts. Backed by dynamic database schema for flexible attributes.
+3. **Vendor & Item Management**: Vendor portal to manage inventory and list items with Cloudinary image upload.
+4. **Assembler Hub & QA Workflow**: Assembly management dashboard tracking sub-orders, quality control checklists, and unified packaging.
+5. **Order Management & Splitting**: Master order creation instantly splitting into sub-orders for vendors.
+6. **Milestone-Based Tracking**: Customers see a clear timeline: *Order Placed → Vendor Processing → Dispatched to Hub → Quality Inspection → Out for Delivery*.
 
 ---
 
 ## 📈 Implementation & Challenges
 
 ### Milestones Achieved
-- ✅ Secure user authentication and RBAC (JWT, BCrypt).
-- ✅ Multi-vendor product catalogue with images, highlights, and reviews.
-- 🟡 Gift box builder with category-specific attributes (Partially Implemented).
-- 🟡 Order splitting engine (Partially Implemented).
+- ✅ Secure user authentication and RBAC (JWT, BCrypt) across 4 roles.
+- ✅ Multi-vendor product catalogue with categories, subcategories, and Cloudinary media upload.
+- ✅ Functional Assembler Hub module for order assembly, QA inspection, and status tracking.
+- ✅ Interactive Gift Box Builder and Order Splitting Architecture.
+- ✅ Flyway migration pipeline supporting schema evolution (V1 to V20).
 
 ### Technical Challenges Resolved
 1. **Hibernate `LazyInitializationException`**: Prevented 500 errors by restructuring entity fetch strategies, executing schema migrations, and introducing DTO-based projections to avoid lazy-loading outside active sessions.
@@ -171,6 +173,14 @@ The system is verified across four strategies:
 | POST | `/api/seller/items` | Add new item |
 | PUT | `/api/seller/items/{id}` | Update item |
 | GET | `/api/seller/orders` | Get vendor-specific sub-orders |
+
+### Assembler Module
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/assemblers` | List all assemblers and performance metrics |
+| POST | `/api/assemblers` | Create new assembler account |
+| PUT | `/api/assemblers/{id}/status` | Update assembler active status |
+| PUT | `/api/orders/{id}/status` | Update order assembly status (`CONFIRMED`, `RECEIVED`, `ASSEMBLING`, `QA_PASSED`) |
 
 ---
 

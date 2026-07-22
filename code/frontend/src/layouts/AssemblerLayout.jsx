@@ -7,7 +7,7 @@ import './AssemblerLayout.css';
 // Uses the "children" prop pattern to match AdminLayout / VendorLayout
 const AssemblerLayout = ({ children }) => {
     // Route Guard: check auth state from localStorage
-    const userRole = localStorage.getItem('userRole');
+    const userRole = localStorage.getItem('role') || localStorage.getItem('userRole');
     const userId = localStorage.getItem('userId');
 
     // Redirect to login if user is not authorized as an assembler

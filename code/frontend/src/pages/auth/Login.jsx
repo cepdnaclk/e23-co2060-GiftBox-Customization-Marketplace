@@ -159,7 +159,7 @@ const Login = () => {
           } else if (userRole === 'CUSTOMER') {
             navigate('/customer/home');
           } else if (userRole === 'ASSEMBLER') {
-            navigate('/assembler-dashboard');
+            navigate('/assembler');
           } else {
             navigate('/');
           }
